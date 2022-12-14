@@ -12,7 +12,6 @@ import (
 
 func encode_SearchGetParts2(data []byte) Seach {
 	var result Seach
-	fmt.Println(string(data))
 	jsonErr := json.Unmarshal(data, &result)
 	if jsonErr != nil {
 		log.Fatal(jsonErr)

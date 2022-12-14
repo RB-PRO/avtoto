@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/xuri/excelize/v2"
@@ -62,19 +63,22 @@ type Seach struct {
 			PartID int `json:"PartId"`
 		} `json:"AvtotoData"`
 	} `json:"Parts"`
-	Info struct {
-		SearchID     string        `json:"SearchId"`
-		Errors       []interface{} `json:"Errors"`
-		Logs         string        `json:"Logs",omitempty`
-		SearchParams struct {
-			Number  string `json:"number"`
-			Analogs int    `json:"analogs"`
-		} `json:"SearchParams"`
-		DocVersion   string  `json:"DocVersion"`
-		Time         float64 `json:"Time"`
-		Cache        int     `json:"Cache"`
-		SearchStatus int     `json:"SearchStatus"`
-	} `json:"Info"`
+	Info map[string]interface{} `json:"Info"`
+	/*
+		Info struct {
+			SearchID     string        `json:"SearchId"`
+			Errors       []interface{} `json:"Errors"`
+			Logs         string        `json:"Logs,omitempty"`
+			SearchParams struct {
+				Number  string `json:"number"`
+				Analogs int    `json:"analogs"`
+			} `json:"SearchParams"`
+			DocVersion   string  `json:"DocVersion"`
+			Time         float64 `json:"Time"`
+			Cache        int     `json:"Cache"`
+			SearchStatus int     `json:"SearchStatus"`
+		} `json:"Info"`
+	*/
 }
 
 // ***
@@ -85,36 +89,88 @@ type requests struct {
 	code         ProcessSearchId
 }
 
+func makeFileXLSX(filename string) *excelize.File {
+	f := excelize.NewFile()
+	if err := f.SaveAs(filename); err != nil {
+		fmt.Println(err)
+	}
+	return f
+}
+
+var cout int = 2
+
+func sethead(f *excelize.File) {
+	f.SetCellValue("Sheet1", "A1", "Code")
+	f.SetCellValue("Sheet1", "B1", "Manuf")
+	f.SetCellValue("Sheet1", "C1", "Name")
+	f.SetCellValue("Sheet1", "D1", "Price")
+	f.SetCellValue("Sheet1", "E1", "Storage")
+	f.SetCellValue("Sheet1", "F1", "Delivery")
+	f.SetCellValue("Sheet1", "G1", "MaxCount")
+	f.SetCellValue("Sheet1", "H1", "BaseCount")
+	f.SetCellValue("Sheet1", "I1", "StorageDate")
+	f.SetCellValue("Sheet1", "J1", "DeliveryPercent")
+	f.SetCellValue("Sheet1", "K1", "BackPercent")
+}
+
+func writeDate(f *excelize.File, data Seach) {
+	for _, val := range data.Parts {
+		f.SetCellValue("Sheet1", "A"+strconv.Itoa(cout), val.Code)
+		f.SetCellValue("Sheet1", "B"+strconv.Itoa(cout), val.Manuf)
+		f.SetCellValue("Sheet1", "C"+strconv.Itoa(cout), val.Name)
+		f.SetCellValue("Sheet1", "D"+strconv.Itoa(cout), val.Price)
+		f.SetCellValue("Sheet1", "E"+strconv.Itoa(cout), val.Storage)
+		f.SetCellValue("Sheet1", "F"+strconv.Itoa(cout), val.Delivery)
+		f.SetCellValue("Sheet1", "G"+strconv.Itoa(cout), val.MaxCount)
+		f.SetCellValue("Sheet1", "H"+strconv.Itoa(cout), val.BaseCount)
+		f.SetCellValue("Sheet1", "I"+strconv.Itoa(cout), val.StorageDate)
+		f.SetCellValue("Sheet1", "J"+strconv.Itoa(cout), val.DeliveryPercent)
+		f.SetCellValue("Sheet1", "K"+strconv.Itoa(cout), val.BackPercent)
+		cout++
+	}
+}
+
 func main() {
 
-	//fmt.Println(os.Args)
+	fmt.Println(os.Args)
 
 	var filenameXlsx string
 	if len(os.Args) == 1 {
 		filenameXlsx = "article.xlsx"
 	}
+	if len(os.Args) == 2 {
+		fmt.Println(os.Args)
+	}
+
+	fmt.Println("Ищу файл", filenameXlsx, "в папке с программой.")
 	dataRequest := requestsExcel(filenameXlsx)
+
+	fOut := makeFileXLSX("fileOut.xlsx")
 
 	for ind, val := range dataRequest {
 		byteValue_start := SearchStartData(val.search_cross, val.brand)
 		dataRequest[ind].code = encode_SearchStart(byteValue_start)
 	}
-	fmt.Println(dataRequest)
+	//fmt.Println(dataRequest)
 
 	//time.Sleep(8 * time.Second)
 	for len(dataRequest) != 0 {
-		for ind, val := range dataRequest {
-			byteValue_start := SearchGetParts2Data(val.code)
+		fmt.Println("-> Пауза 5 секунд")
+		time.Sleep(5 * time.Second)
+		for ind := 0; ind < len(dataRequest); ind++ {
+			//for ind, val := range dataRequest {
+			byteValue_start := SearchGetParts2Data(dataRequest[ind].code)
 			seach := encode_SearchGetParts2(byteValue_start)
-			fmt.Println(seach.Info.Logs)
-			if seach.Info.Logs == "" {
-				fmt.Println(seach.Parts[0])
+			if seach.Info["Logs"] != "wait" {
+				//fmt.Println(seach.Parts[0].Code)
+				writeDate(fOut, seach)
+				//fmt.Println("Len", len(dataRequest), "ind", ind)
 				dataRequest = removeByRequests(dataRequest, ind)
+				fmt.Println("Осталось:", len(dataRequest))
 			}
 		}
-		fmt.Println("-> WAIT 3 sec")
-		time.Sleep(3 * time.Second)
 	}
+	fOut.Save()
 	/*
 		byteValue_start = SearchGetParts2Data(byteValue_start_json)
 		//fmt.Println(string(byteValue_start))
