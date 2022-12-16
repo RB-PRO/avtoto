@@ -100,17 +100,67 @@ func makeFileXLSX(filename string) *excelize.File {
 var cout int = 2
 
 func sethead(f *excelize.File) {
+	var err error
 	f.SetCellValue("Sheet1", "A1", "Code")
+	err = f.AddComment("Sheet1", "A1", `{"author":"RB_PRO: ","text":" Код детали"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "B1", "Manuf")
+	err = f.AddComment("Sheet1", "B1", `{"author":"RB_PRO: ","text":" Производитель"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "C1", "Name")
+	err = f.AddComment("Sheet1", "C1", `{"author":"RB_PRO: ","text":" Название"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "D1", "Price")
+	err = f.AddComment("Sheet1", "D1", `{"author":"RB_PRO: ","text":" Цена"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "E1", "Storage")
+	err = f.AddComment("Sheet1", "E1", `{"author":"RB_PRO: ","text":" Склад"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "F1", "Delivery")
+	err = f.AddComment("Sheet1", "F1", `{"author":"RB_PRO: ","text":" Срок доставки"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "G1", "MaxCount")
+	err = f.AddComment("Sheet1", "G1", `{"author":"RB_PRO: ","text":" Максимальное количество для заказа, остаток по складу. Значение -1 - означает много или неизвестно."}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "H1", "BaseCount")
+	err = f.AddComment("Sheet1", "H1", `{"author":"RB_PRO: ","text":" Кратность заказа"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "I1", "StorageDate")
+	err = f.AddComment("Sheet1", "I1", `{"author":"RB_PRO: ","text":" Дата обновления склада"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "J1", "DeliveryPercent")
+	err = f.AddComment("Sheet1", "J1", `{"author":"RB_PRO: ","text":" Процент успешных закупок из общего числа заказов"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 	f.SetCellValue("Sheet1", "K1", "BackPercent")
+	err = f.AddComment("Sheet1", "K1", `{"author":"RB_PRO: ","text":" Процент удержания при возврате товара (при отсутствии возврата поставщику возвращается значение -1)"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
+	f.SetCellValue("Sheet1", "L1", "0.9_Price")
+	err = f.AddComment("Sheet1", "L1", `{"author":"RB_PRO: ","text":" 90% от цены"}`)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func writeDate(f *excelize.File, data Seach) {
@@ -126,13 +176,18 @@ func writeDate(f *excelize.File, data Seach) {
 		f.SetCellValue("Sheet1", "I"+strconv.Itoa(cout), val.StorageDate)
 		f.SetCellValue("Sheet1", "J"+strconv.Itoa(cout), val.DeliveryPercent)
 		f.SetCellValue("Sheet1", "K"+strconv.Itoa(cout), val.BackPercent)
+
+		err := f.SetCellFormula("Sheet1", "L"+strconv.Itoa(cout), "=PRODUCT("+"D"+strconv.Itoa(cout)+",0.9)")
+		if err != nil {
+			fmt.Println(err)
+		}
 		cout++
 	}
 }
 
 func main() {
 
-	fmt.Println(os.Args)
+	//fmt.Println(os.Args)
 
 	var filenameXlsx string
 	if len(os.Args) == 1 {
@@ -146,6 +201,7 @@ func main() {
 	dataRequest := requestsExcel(filenameXlsx)
 
 	fOut := makeFileXLSX("fileOut.xlsx")
+	sethead(fOut)
 
 	for ind, val := range dataRequest {
 		byteValue_start := SearchStartData(val.search_cross, val.brand)
@@ -155,18 +211,19 @@ func main() {
 
 	//time.Sleep(8 * time.Second)
 	for len(dataRequest) != 0 {
-		fmt.Println("-> Пауза 5 секунд")
-		time.Sleep(5 * time.Second)
+		fmt.Println("-> Пауза 3 секунд")
+		time.Sleep(3 * time.Second)
 		for ind := 0; ind < len(dataRequest); ind++ {
 			//for ind, val := range dataRequest {
 			byteValue_start := SearchGetParts2Data(dataRequest[ind].code)
 			seach := encode_SearchGetParts2(byteValue_start)
 			if seach.Info["Logs"] != "wait" {
 				//fmt.Println(seach.Parts[0].Code)
+				seach = filterSeach(seach)
 				writeDate(fOut, seach)
 				//fmt.Println("Len", len(dataRequest), "ind", ind)
 				dataRequest = removeByRequests(dataRequest, ind)
-				fmt.Println("Осталось:", len(dataRequest))
+				fmt.Println("Осталось", len(dataRequest))
 			}
 		}
 	}
@@ -180,7 +237,32 @@ func main() {
 
 }
 
+/*
+1. Кол-во дней поставки не более 7
+2. Кол-во шт. больше 1 (т.е от 2)
+3. Цена в файле результаты с точкой сейчас (нужно что бы с запятой было, удобнее для дальнейшей работы и редактирования)
+4. Если цена справа кратно отличается от первой или первых двух ( на 30% и более, ставим ее (большую цену))
+Пример: цена 100 130 и 135 (первый столбец будет 130, 100 не берем)
+*/
+
+// Бизнес-логика
+func filterSeach(seach Seach) Seach {
+	var out Seach
+	// 1 2
+	for i := 0; i < len(seach.Parts); i++ {
+		code, _ := strconv.Atoi(seach.Parts[i].Code)
+		MaxCount, _ := strconv.Atoi(seach.Parts[i].MaxCount)
+		if code <= 7 && MaxCount > 1 {
+			out.Parts = append(out.Parts, seach.Parts[i])
+		}
+	}
+	return out
+}
+
 func removeByRequests(array []requests, index int) []requests {
+	return append(array[:index], array[index+1:]...)
+}
+func removeBySeach(array []Seach, index int) []Seach {
 	return append(array[:index], array[index+1:]...)
 }
 
