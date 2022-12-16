@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"time"
@@ -164,7 +165,19 @@ func sethead(f *excelize.File) {
 }
 
 func writeDate(f *excelize.File, data Seach) {
+	Red := rand.Intn(255)
+	Green := rand.Intn(255)
+	blue := rand.Intn(255)
+	h := fmt.Sprintf("%X%X%X", Red, Green, blue)
+	style, err := f.NewStyle(&excelize.Style{
+		Fill: excelize.Fill{Type: "pattern", Color: []string{"#" + h}, Pattern: 1},
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	for _, val := range data.Parts {
+		_ = f.SetCellStyle("Sheet1", "A"+strconv.Itoa(cout), "A"+strconv.Itoa(cout), style)
 		f.SetCellValue("Sheet1", "A"+strconv.Itoa(cout), val.Code)
 		f.SetCellValue("Sheet1", "B"+strconv.Itoa(cout), val.Manuf)
 		f.SetCellValue("Sheet1", "C"+strconv.Itoa(cout), val.Name)
@@ -219,7 +232,7 @@ func main() {
 			seach := encode_SearchGetParts2(byteValue_start)
 			if seach.Info["Logs"] != "wait" {
 				//fmt.Println(seach.Parts[0].Code)
-				seach = filterSeach(seach)
+				seach = filterSeach(seach, dataRequest[ind])
 				writeDate(fOut, seach)
 				//fmt.Println("Len", len(dataRequest), "ind", ind)
 				dataRequest = removeByRequests(dataRequest, ind)
@@ -246,24 +259,37 @@ func main() {
 */
 
 // Бизнес-логика
-func filterSeach(seach Seach) Seach {
-	var out Seach
+func filterSeach(seach Seach, dataRequest requests) Seach {
 	// 1 2
 	for i := 0; i < len(seach.Parts); i++ {
-		code, _ := strconv.Atoi(seach.Parts[i].Code)
+		Code := seach.Parts[i].Code
+		Manuf := seach.Parts[i].Manuf
+
+		Delivery, _ := strconv.Atoi(seach.Parts[i].Delivery)
 		MaxCount, _ := strconv.Atoi(seach.Parts[i].MaxCount)
-		if code <= 7 && MaxCount > 1 {
-			out.Parts = append(out.Parts, seach.Parts[i])
+		// 1. Кол-во дней поставки не более 7
+		// 2. Кол-во шт. больше 1 (т.е от 2)
+		// Проверка на то что артикул и брэнд как в файле
+		//fmt.Println("search_cross", dataRequest.search_cross, "brand", dataRequest.brand, "code", dataRequest.code.ProcessSearchId)
+
+		if (Delivery > 7 || MaxCount <= 1) || /*Кол-во дней поставки не более 7, Кол-во шт. больше 1 (т.е от 2) */
+			(Code != dataRequest.search_cross || Manuf != dataRequest.brand) { /*Проверка на то что артикул и брэнд как в файле*/
+			seach = removeBySeach(seach, i)
+			i--
 		}
+
 	}
-	return out
+	return seach
 }
 
 func removeByRequests(array []requests, index int) []requests {
 	return append(array[:index], array[index+1:]...)
 }
-func removeBySeach(array []Seach, index int) []Seach {
-	return append(array[:index], array[index+1:]...)
+func removeBySeach(array Seach, index int) Seach {
+	theParts := array.Parts
+	theParts = append(theParts[:index], theParts[index+1:]...)
+	array.Parts = theParts
+	return array
 }
 
 func requestsExcel(filename string) []requests {
