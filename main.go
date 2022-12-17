@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 
@@ -100,68 +101,51 @@ func makeFileXLSX(filename string) *excelize.File {
 
 var cout int = 2
 
-func sethead(f *excelize.File) {
+type headers struct {
+	name        string
+	description string
+}
+
+func setHeadDatConsidently(f *excelize.File, headData []headers, datas int, color string) {
 	var err error
-	f.SetCellValue("Sheet1", "A1", "Code")
-	err = f.AddComment("Sheet1", "A1", `{"author":"RB_PRO: ","text":" Код детали"}`)
+	style, err := f.NewStyle(&excelize.Style{
+		Fill: excelize.Fill{Type: "pattern", Color: []string{"#" + color}, Pattern: 1},
+	})
 	if err != nil {
 		fmt.Println(err)
 	}
-	f.SetCellValue("Sheet1", "B1", "Manuf")
-	err = f.AddComment("Sheet1", "B1", `{"author":"RB_PRO: ","text":" Производитель"}`)
-	if err != nil {
-		fmt.Println(err)
+
+	_ = f.SetCellStyle("Sheet1", CNTN(1, 1+datas*10), CNTN(1, 9+datas*10), style)
+	for ind, val := range headData {
+		f.SetCellValue("Sheet1", CNTN(1, 1+ind+datas*10), val.name)
+		err = f.AddComment("Sheet1", CNTN(1, 1+ind+datas*10), `{"author":"RB_PRO: ","text":"`+val.description+`"}`)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
-	f.SetCellValue("Sheet1", "C1", "Name")
-	err = f.AddComment("Sheet1", "C1", `{"author":"RB_PRO: ","text":" Название"}`)
-	if err != nil {
-		fmt.Println(err)
+
+}
+
+func sethead(f *excelize.File) {
+
+	headData := []headers{
+		headers{name: "Code", description: "Код детали"},
+		headers{name: "Manuf", description: "Производитель"},
+		headers{name: "Name", description: "Название"},
+		headers{name: "Price", description: "Цена"},
+		headers{name: "Storage", description: "Склад"},
+		headers{name: "Delivery", description: "Срок доставки"},
+		headers{name: "MaxCount", description: "Максимальное количество для заказа, остаток по складу. Значение -1 - означает много или неизвестно."},
+		headers{name: "DeliveryPercent", description: "Процент успешных закупок из общего числа заказов"},
+		headers{name: "0.9_Price", description: "90% от цены"},
 	}
-	f.SetCellValue("Sheet1", "D1", "Price")
-	err = f.AddComment("Sheet1", "D1", `{"author":"RB_PRO: ","text":" Цена"}`)
-	if err != nil {
-		fmt.Println(err)
-	}
-	f.SetCellValue("Sheet1", "E1", "Storage")
-	err = f.AddComment("Sheet1", "E1", `{"author":"RB_PRO: ","text":" Склад"}`)
-	if err != nil {
-		fmt.Println(err)
-	}
-	f.SetCellValue("Sheet1", "F1", "Delivery")
-	err = f.AddComment("Sheet1", "F1", `{"author":"RB_PRO: ","text":" Срок доставки"}`)
-	if err != nil {
-		fmt.Println(err)
-	}
-	f.SetCellValue("Sheet1", "G1", "MaxCount")
-	err = f.AddComment("Sheet1", "G1", `{"author":"RB_PRO: ","text":" Максимальное количество для заказа, остаток по складу. Значение -1 - означает много или неизвестно."}`)
-	if err != nil {
-		fmt.Println(err)
-	}
-	f.SetCellValue("Sheet1", "H1", "BaseCount")
-	err = f.AddComment("Sheet1", "H1", `{"author":"RB_PRO: ","text":" Кратность заказа"}`)
-	if err != nil {
-		fmt.Println(err)
-	}
-	f.SetCellValue("Sheet1", "I1", "StorageDate")
-	err = f.AddComment("Sheet1", "I1", `{"author":"RB_PRO: ","text":" Дата обновления склада"}`)
-	if err != nil {
-		fmt.Println(err)
-	}
-	f.SetCellValue("Sheet1", "J1", "DeliveryPercent")
-	err = f.AddComment("Sheet1", "J1", `{"author":"RB_PRO: ","text":" Процент успешных закупок из общего числа заказов"}`)
-	if err != nil {
-		fmt.Println(err)
-	}
-	f.SetCellValue("Sheet1", "K1", "BackPercent")
-	err = f.AddComment("Sheet1", "K1", `{"author":"RB_PRO: ","text":" Процент удержания при возврате товара (при отсутствии возврата поставщику возвращается значение -1)"}`)
-	if err != nil {
-		fmt.Println(err)
-	}
-	f.SetCellValue("Sheet1", "L1", "0.9_Price")
-	err = f.AddComment("Sheet1", "L1", `{"author":"RB_PRO: ","text":" 90% от цены"}`)
-	if err != nil {
-		fmt.Println(err)
-	}
+	setHeadDatConsidently(f, headData, 0, fmt.Sprintf("%X%X%X", 150, 200, 150))
+	setHeadDatConsidently(f, headData, 1, fmt.Sprintf("%X%X%X", 200, 150, 150))
+	setHeadDatConsidently(f, headData, 2, fmt.Sprintf("%X%X%X", 150, 150, 200))
+
+}
+
+func setheadOfDatas(f *excelize.File, datas int) {
 }
 
 func writeDate(f *excelize.File, data Seach) {
@@ -176,28 +160,37 @@ func writeDate(f *excelize.File, data Seach) {
 		fmt.Println(err)
 	}
 
-	for _, val := range data.Parts {
-		_ = f.SetCellStyle("Sheet1", "A"+strconv.Itoa(cout), "A"+strconv.Itoa(cout), style)
-		f.SetCellValue("Sheet1", "A"+strconv.Itoa(cout), val.Code)
-		f.SetCellValue("Sheet1", "B"+strconv.Itoa(cout), val.Manuf)
-		f.SetCellValue("Sheet1", "C"+strconv.Itoa(cout), val.Name)
-		f.SetCellValue("Sheet1", "D"+strconv.Itoa(cout), val.Price)
-		f.SetCellValue("Sheet1", "E"+strconv.Itoa(cout), val.Storage)
-		f.SetCellValue("Sheet1", "F"+strconv.Itoa(cout), val.Delivery)
-		f.SetCellValue("Sheet1", "G"+strconv.Itoa(cout), val.MaxCount)
-		f.SetCellValue("Sheet1", "H"+strconv.Itoa(cout), val.BaseCount)
-		f.SetCellValue("Sheet1", "I"+strconv.Itoa(cout), val.StorageDate)
-		f.SetCellValue("Sheet1", "J"+strconv.Itoa(cout), val.DeliveryPercent)
-		f.SetCellValue("Sheet1", "K"+strconv.Itoa(cout), val.BackPercent)
-
-		err := f.SetCellFormula("Sheet1", "L"+strconv.Itoa(cout), "=PRODUCT("+"D"+strconv.Itoa(cout)+",0.9)")
-		if err != nil {
-			fmt.Println(err)
-		}
-		cout++
+	if len(data.Parts) >= 1 {
+		_ = f.SetCellStyle("Sheet1", CNTN(cout, 1), CNTN(cout, 1), style)
+		setDataOneSeach(f, data, cout, 0, 0)
 	}
+	if len(data.Parts) >= 2 {
+		setDataOneSeach(f, data, cout, 1, 1)
+	}
+	if len(data.Parts) >= 3 {
+		setDataOneSeach(f, data, cout, 2, 2)
+	}
+	cout++
 }
 
+func setDataOneSeach(f *excelize.File, data Seach, row, datas, index int) {
+	f.SetCellValue("Sheet1", CNTN(row, 1+datas*10), data.Parts[index].Code)
+	f.SetCellValue("Sheet1", CNTN(row, 2+datas*10), data.Parts[index].Manuf)
+	f.SetCellValue("Sheet1", CNTN(row, 3+datas*10), data.Parts[index].Name)
+	f.SetCellValue("Sheet1", CNTN(row, 4+datas*10), data.Parts[index].Price)
+	f.SetCellValue("Sheet1", CNTN(row, 5+datas*10), data.Parts[index].Storage)
+	f.SetCellValue("Sheet1", CNTN(row, 6+datas*10), data.Parts[index].Delivery)
+	f.SetCellValue("Sheet1", CNTN(row, 7+datas*10), data.Parts[index].MaxCount)
+	f.SetCellValue("Sheet1", CNTN(row, 8+datas*10), data.Parts[index].DeliveryPercent)
+	err := f.SetCellFormula("Sheet1", CNTN(row, 9+datas*10), "=PRODUCT("+CNTN(row, 4+datas*10)+",0.9)")
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+func CNTN(row, col int) string {
+	a, _ := excelize.ColumnNumberToName(col)
+	return a + strconv.Itoa(row)
+}
 func main() {
 
 	//fmt.Println(os.Args)
@@ -220,23 +213,35 @@ func main() {
 		byteValue_start := SearchStartData(val.search_cross, val.brand)
 		dataRequest[ind].code = encode_SearchStart(byteValue_start)
 	}
-	//fmt.Println(dataRequest)
 
 	//time.Sleep(8 * time.Second)
 	for len(dataRequest) != 0 {
-		fmt.Println("-> Пауза 3 секунд")
+		fmt.Println("-> Пауза 3 сек.")
 		time.Sleep(3 * time.Second)
 		for ind := 0; ind < len(dataRequest); ind++ {
 			//for ind, val := range dataRequest {
 			byteValue_start := SearchGetParts2Data(dataRequest[ind].code)
 			seach := encode_SearchGetParts2(byteValue_start)
+			/*
+				if _, ok := seach.Info["Errors"]; ok {
+					fmt.Println(seach.Info["Errors"])
+				}
+			*/
 			if seach.Info["Logs"] != "wait" {
+				//fmt.Println(len(seach.Parts))
 				//fmt.Println(seach.Parts[0].Code)
+				seach = sortSeach(seach)
 				seach = filterSeach(seach, dataRequest[ind])
-				writeDate(fOut, seach)
-				//fmt.Println("Len", len(dataRequest), "ind", ind)
-				dataRequest = removeByRequests(dataRequest, ind)
-				fmt.Println("Осталось", len(dataRequest))
+				seach = sortThreeSeach(seach)
+				if len(seach.Parts) != 0 {
+					writeDate(fOut, seach)
+					//fmt.Println(seach.Parts)
+					dataRequest = removeByRequests(dataRequest, ind)
+					fmt.Println("Осталось", len(dataRequest))
+				} else {
+					dataRequest = removeByRequests(dataRequest, ind)
+
+				}
 			}
 		}
 	}
@@ -257,6 +262,32 @@ func main() {
 4. Если цена справа кратно отличается от первой или первых двух ( на 30% и более, ставим ее (большую цену))
 Пример: цена 100 130 и 135 (первый столбец будет 130, 100 не берем)
 */
+
+func sortSeach(seach Seach) Seach {
+	sort.Slice(seach.Parts, func(i, j int) bool {
+		return seach.Parts[i].Price < seach.Parts[j].Price
+	})
+	return seach
+}
+
+func sortThreeSeach(seach Seach) Seach {
+	if len(seach.Parts) <= 3 {
+		return seach
+	} else {
+		if seach.Parts[0].Price/7.0*10.0 < seach.Parts[1].Price {
+			// Убрать 0
+			seach = removeBySeach(seach, 0)
+		} else {
+			// Утрать всё после 3
+
+		}
+		for i := 3; i < len(seach.Parts); i++ {
+			seach = removeBySeach(seach, i)
+			i--
+		}
+	}
+	return seach
+}
 
 // Бизнес-логика
 func filterSeach(seach Seach, dataRequest requests) Seach {
