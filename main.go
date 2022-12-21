@@ -197,7 +197,7 @@ func main() {
 
 	var filenameXlsx string
 	if len(os.Args) == 1 {
-		filenameXlsx = "article.xlsx"
+		filenameXlsx = "article2.xlsx"
 	}
 	if len(os.Args) == 2 {
 		fmt.Println(os.Args)
@@ -227,6 +227,8 @@ func main() {
 					fmt.Println(seach.Info["Errors"])
 				}
 			*/
+			//fmt.Println(seach.Info)
+			fmt.Println(seach.Parts)
 			if seach.Info["Logs"] != "wait" {
 				//fmt.Println(len(seach.Parts))
 				//fmt.Println(seach.Parts[0].Code)
