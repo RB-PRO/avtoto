@@ -1,15 +1,6 @@
 package main
 
-import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
-	"mime/multipart"
-	"net/http"
-)
-
+/*
 func encode_SearchGetParts2(data []byte) Seach {
 	var result Seach
 	jsonErr := json.Unmarshal(data, &result)
@@ -56,3 +47,4 @@ func SearchGetParts2Data(data ProcessSearchId) []byte {
 	}
 	return body
 }
+*/

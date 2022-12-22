@@ -1,15 +1,6 @@
 package main
 
-import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
-	"mime/multipart"
-	"net/http"
-)
-
+/*
 // byteValue := GetBrandsByCode("N007603010406")
 // result := encode_GetBrandsByCode(byteValue)
 // fmt.Println(result.Brands[0].Manuf)
@@ -65,3 +56,4 @@ func GetBrandsByCode(data string) []byte {
 	}
 	return body
 }
+*/
