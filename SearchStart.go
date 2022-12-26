@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -71,7 +70,7 @@ func (responseSearchStart *SearchStartResponseStruct) UnmarshalJson(body []byte)
 	if responseError != nil {
 		return responseError
 	}
-	fmt.Println("ERROR", responseSearchStart.Info.Errors)
+
 	if len(responseSearchStart.Info.Errors) != 0 {
 		return errors.New(responseSearchStart.Info.Errors[0])
 	}

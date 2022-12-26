@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"strconv"
 )
 
 type User struct {
@@ -16,7 +19,11 @@ const URL string = "https://www.avtoto.ru/?soap_server=json_mode"
 func main() {
 	//sreq := SearchStartRequestStruct{user_id: 532936, user_login: "s532936", user_password: "123456z", search_code: "N007603010406", search_cross: "off", brand: "MERCEDES-BENZ"}
 	//sreq.Post()
-	user := User{UserId: 532936, UserLogin: "s532936", UserPassword: "123456z"}
+	userIdInt, _ := strconv.Atoi(dataFile("UserId.txt"))
+	UserLoginStr := dataFile("UserLogin.txt")
+	UserPasswordStr := dataFile("UserPassword.txt")
+
+	user := User{UserId: userIdInt, UserLogin: UserLoginStr, UserPassword: UserPasswordStr}
 	searchStartReq := SearchStartRequestStruct{SearchCode: "N007603010406", SearchCross: "on", Brand: "MERCEDES-BENZ"}
 	jsons, errorSearch := user.SearchStartRequest(searchStartReq)
 	if errorSearch != nil {
@@ -25,19 +32,37 @@ func main() {
 	fmt.Println(jsons)
 }
 
-/*case 'cannot create client': return 'Не получилось соединиться с сервером';
-  case 'no result':            return 'Сервер не ответил';
-  case 'wrong params':         return 'Неверные параметры соединения';
-  case 'wrong parts':          return 'Ошибка данных';
-  case 'error code':           return 'Неверный артикул';
-  private $progress_list = array(
-      '2'=>  'Ожидает оплаты',
-      '1'=>  'Ожидает обработки',
-      '3'=>  'Заказано',
-      '4'=>  'Закуплено',
-      '5'=>  'В пути',
-      '6'=>  'На складе',
-      '7'=>  'Выдано',
-      '8'=>  'Нет в наличии'
-  );
+/*
+case 'cannot create client': return 'Не получилось соединиться с сервером';
+
+	case 'no result':            return 'Сервер не ответил';
+	case 'wrong params':         return 'Неверные параметры соединения';
+	case 'wrong parts':          return 'Ошибка данных';
+	case 'error code':           return 'Неверный артикул';
+	private $progress_list = array(
+	    '2'=>  'Ожидает оплаты',
+	    '1'=>  'Ожидает обработки',
+	    '3'=>  'Заказано',
+	    '4'=>  'Закуплено',
+	    '5'=>  'В пути',
+	    '6'=>  'На складе',
+	    '7'=>  'Выдано',
+	    '8'=>  'Нет в наличии'
+	);
 */
+func dataFile(filename string) string {
+	fileToken, errorToken := os.Open(filename)
+	if errorToken != nil {
+		log.Fatal(errorToken)
+	}
+	defer func() {
+		if errorToken = fileToken.Close(); errorToken != nil {
+			log.Fatal(errorToken)
+		}
+	}()
+	data, errFileToken := ioutil.ReadAll(fileToken)
+	if errFileToken != nil {
+		log.Fatal(errFileToken)
+	}
+	return string(data)
+}
