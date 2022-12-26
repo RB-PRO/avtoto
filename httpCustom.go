@@ -11,7 +11,7 @@ import (
 func HttpPost(bytesRepresentation []byte, action string) ([]byte, error) {
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
-	_ = writer.WriteField("action", "SearchStart")
+	_ = writer.WriteField("action", action)
 	_ = writer.WriteField("data", string(bytesRepresentation))
 	responseError := writer.Close()
 	if responseError != nil {
