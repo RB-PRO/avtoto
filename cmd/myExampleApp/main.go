@@ -1,9 +1,9 @@
 package main
 
+import "github.com/rb-pro/avtoto/internal/app"
+
 func main() {
 
-	SearchPull.Start()
-	//app.Start()
-	//Start()
+	app.Run()
 
 }

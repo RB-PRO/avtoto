@@ -10,7 +10,7 @@ import (
 	"github.com/rb-pro/avtoto/pkg/avtotoGo"
 )
 
-func Start() {
+func Run() {
 	fmt.Println("SearchPull")
 
 	userIdInt, _ := strconv.Atoi(dataFile("UserId.txt"))
