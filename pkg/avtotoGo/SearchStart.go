@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-// Запрос
+// Структура запроса
 type SearchStartRequestStruct struct {
 	UserId       int    `json:"user_id"`         // Уникальный идентификатор пользователя (номер клиента) (тип: целое)
 	UserLogin    string `json:"user_login"`      // Логин пользователя (тип: строка)
@@ -17,7 +17,7 @@ type SearchStartRequestStruct struct {
 	// [**] Список брендов можно получить с помощью метода GetBrandsByCode
 }
 
-// Ответ
+// Структура ответа
 type SearchStartResponseStruct struct {
 	ProcessSearchID string `json:"ProcessSearchId"` // идентификатор процесса поиска (тип: строка). Необходим для отслеживания результатов процесса поиска.
 	Info            struct {

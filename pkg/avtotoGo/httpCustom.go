@@ -2,9 +2,11 @@ package avtotoGo
 
 import (
 	"bytes"
-	"io/ioutil"
+	"errors"
+	"io"
 	"mime/multipart"
 	"net/http"
+	"strconv"
 )
 
 const URL string = "https://www.avtoto.ru/?soap_server=json_mode"
@@ -41,9 +43,13 @@ func HttpPost(bytesRepresentation []byte, action string) ([]byte, error) {
 	defer res.Body.Close()
 
 	// Считываем ответ
-	body, responseError := ioutil.ReadAll(res.Body)
-	if responseError != nil {
-		return nil, responseError
+	if res.StatusCode == http.StatusOK {
+		bodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, responseError
+		}
+		return bodyBytes, responseError
+	} else {
+		return nil, errors.New(strconv.Itoa(res.StatusCode))
 	}
-	return body, responseError
 }
