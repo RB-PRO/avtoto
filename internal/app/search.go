@@ -8,6 +8,7 @@ package app
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -70,6 +71,28 @@ func Run() {
 		"\nСрок доставки", SearchGetParts2Res.Parts[0].Delivery,
 		"\nМаксимальное количество для заказа", SearchGetParts2Res.Parts[0].MaxCount,
 		"\nКратность заказа", SearchGetParts2Res.Parts[0].BaseCount)
+}
+
+func Run2() {
+	f, err := os.Open("data.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	fContent, err := ioutil.ReadFile("data.txt")
+	if err != nil {
+		panic(err)
+	}
+	data := string(fContent)
+
+	// ***
+
+	var responseSearchGetParts2 avtotoGo.SearchGetParts2Response
+	responseError := responseSearchGetParts2.SearchGetParts2_UnmarshalJson([]byte(data))
+
+	fmt.Println(responseError)
+
 }
 
 // Получение значение из файла
