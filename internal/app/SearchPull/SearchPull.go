@@ -1,4 +1,4 @@
-package searchpull
+package app
 
 import (
 	"fmt"
