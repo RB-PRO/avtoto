@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/rb-pro/avtoto/pkg/avtotoGo"
 )
@@ -19,29 +20,53 @@ func Run() {
 	UserLoginStr, _ := dataFile("UserLogin.txt")
 	UserPasswordStr, _ := dataFile("UserPassword.txt")
 
+	// Объявление пользователя
 	user := avtotoGo.User{UserId: userIdInt, UserLogin: UserLoginStr, UserPassword: UserPasswordStr}
 
-	searchStartReq := avtotoGo.SearchStartRequestStruct{SearchCode: "N007603010406", SearchCross: "on", Brand: "MERCEDES-BENZ"}
-	jsons, errorSearch := user.SearchStartRequest(searchStartReq)
+	// ************************** SearchStart **************************
+
+	// Объявление запроса метода SearchStart
+	searchStartReq := avtotoGo.SearchStartRequest{SearchCode: "N007603010406", SearchCross: "on", Brand: "MERCEDES-BENZ"}
+	// Вызов метода SearchStartRequest с запросом
+	jsonsSearchStartRequest, errorSearch := user.SearchStartRequest(searchStartReq)
 	if errorSearch != nil {
 		log.Fatal(errorSearch)
 	}
-	fmt.Println(jsons)
+	fmt.Println(jsonsSearchStartRequest)
+
+	// ************************** SearchGetParts2 **************************
+
+	// Преобразовать Ответ метода SearchStart в запрос для метода SearchGetParts2
+	SearchGetParts2Req, errorSearch := jsonsSearchStartRequest.SearchResInReq()
+	if errorSearch != nil {
+		log.Fatal(errorSearch)
+	}
+
+	time.Sleep(8 * time.Second)
+
+	// Вызов метода SearchGetParts2
+	SearchGetParts2Res, errorSearch := SearchGetParts2Req.SearchGetParts2()
+	if errorSearch != nil {
+		log.Fatal(errorSearch)
+	}
+	fmt.Println(SearchGetParts2Res)
 }
 
 // Получение значение из файла
 func dataFile(filename string) (string, error) {
+	// Открыть файл
 	fileToken, errorToken := os.Open(filename)
 	if errorToken != nil {
 		return "", errorToken
 	}
 
+	// Прочитать значение файла
 	data := make([]byte, 64)
 	n, err := fileToken.Read(data)
 	if err == io.EOF { // если конец файла
 		return "", errorToken
 	}
-	fileToken.Close()
+	fileToken.Close() // Закрытие файла
 
 	return string(data[:n]), nil
 }
