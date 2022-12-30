@@ -31,13 +31,15 @@ type SearchGetParts2Response struct {
 		MaxCount  string `json:"MaxCount"`  // [*] Максимальное количество для заказа, остаток по складу. Значение "-1" - означает "много" или "неизвестно"
 		BaseCount string `json:"BaseCount"` // [*] Кратность заказа
 
-		StorageDate     string `json:"StorageDate"`     // Дата обновления склада // В случае, когда SearchStatus = 4 (Результат получен)
-		DeliveryPercent int    `json:"DeliveryPercent"` // Процент успешных закупок из общего числа заказов // В случае, когда SearchStatus = 4 (Результат получен)
-		BackPercent     int    `json:"BackPercent"`     // Процент удержания при возврате товара (при отсутствии возврата поставщику возвращается значение "-1") // В случае, когда SearchStatus = 4 (Результат получен)
+		StorageDate     string `json:"StorageDate"`     // [**] Дата обновления склада
+		DeliveryPercent int    `json:"DeliveryPercent"` // [**] Процент успешных закупок из общего числа заказов
+		BackPercent     int    `json:"BackPercent"`     // [**] Процент удержания при возврате товара (при отсутствии возврата поставщику возвращается значение "-1")
 
 		AvtotoData struct { // Массив со след. элементами:
 			PartId int `json:"PartId"` // [*] Номер запчасти в списке результата поиска
 		} `json:"AvtotoData"`
+		// [*] — эти данные можно узнать зайдя на страницу Настройки после авторизации на сайте
+		// [**] — В случае, когда SearchStatus = 4 (Результат получен)
 	} `json:"Parts"`
 
 	Info struct {
