@@ -1,7 +1,7 @@
 all: run
 
 run:
-	go run main.go GetBrandsByCode.go SearchGetParts2.go SearchStart.go httpCustom.go
+	go run cmd/avtoto/main.go
 
 push:
 	git push git@github.com:RB-PRO/avtoto.git

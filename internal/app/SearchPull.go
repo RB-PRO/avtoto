@@ -1,8 +1,10 @@
+// Пакет бизнес-логики, согласно ТЗ.
+
 package app
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -11,11 +13,11 @@ import (
 )
 
 func Run() {
-	fmt.Println("SearchPull")
-
-	userIdInt, _ := strconv.Atoi(dataFile("UserId.txt"))
-	UserLoginStr := dataFile("UserLogin.txt")
-	UserPasswordStr := dataFile("UserPassword.txt")
+	// Загрузка данных из файлов. UserId, UserLogin, UserPassword.
+	userIdStr, _ := dataFile("UserId.txt")
+	userIdInt, _ := strconv.Atoi(userIdStr)
+	UserLoginStr, _ := dataFile("UserLogin.txt")
+	UserPasswordStr, _ := dataFile("UserPassword.txt")
 
 	user := avtotoGo.User{UserId: userIdInt, UserLogin: UserLoginStr, UserPassword: UserPasswordStr}
 
@@ -27,21 +29,21 @@ func Run() {
 	fmt.Println(jsons)
 }
 
-func dataFile(filename string) string {
+// Получение значение из файла
+func dataFile(filename string) (string, error) {
 	fileToken, errorToken := os.Open(filename)
 	if errorToken != nil {
-		log.Fatal(errorToken)
+		return "", errorToken
 	}
-	defer func() {
-		if errorToken = fileToken.Close(); errorToken != nil {
-			log.Fatal(errorToken)
-		}
-	}()
-	data, errFileToken := ioutil.ReadAll(fileToken)
-	if errFileToken != nil {
-		log.Fatal(errFileToken)
+
+	data := make([]byte, 64)
+	n, err := fileToken.Read(data)
+	if err == io.EOF { // если конец файла
+		return "", errorToken
 	}
-	return string(data)
+	fileToken.Close()
+
+	return string(data[:n]), nil
 }
 
 /*
