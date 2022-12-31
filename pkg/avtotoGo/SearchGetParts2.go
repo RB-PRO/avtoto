@@ -67,9 +67,6 @@ func (SearchGetParts2Req SearchGetParts2Request) SearchGetParts2() (SearchGetPar
 		return responseSearchGetParts2, responseError
 	}
 
-	//fmt.Println(string(body))
-	//fmt.Println()
-
 	// Распарсить данные
 	responseError = responseSearchGetParts2.SearchGetParts2_UnmarshalJson(body)
 

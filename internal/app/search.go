@@ -17,7 +17,7 @@ import (
 	"github.com/rb-pro/avtoto/pkg/avtotoGo"
 )
 
-func Run() {
+func Search() {
 	// Загрузка данных из файлов. UserId, UserLogin, UserPassword.
 	userIdStr, _ := dataFile("UserId.txt")
 	userIdInt, _ := strconv.Atoi(userIdStr)
@@ -73,7 +73,8 @@ func Run() {
 		"\nКратность заказа", SearchGetParts2Res.Parts[0].BaseCount)
 }
 
-func Run2() {
+// Тестовая функция, чтобы вылечить SearchID(Возвращается int или string)
+func Test_UnmarshalJson() {
 	f, err := os.Open("data.txt")
 	if err != nil {
 		panic(err)
