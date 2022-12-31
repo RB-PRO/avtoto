@@ -3,6 +3,7 @@ package avtotoGo
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 )
 
 // Метод SearchGetParts2 предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа.
@@ -66,6 +67,8 @@ func (SearchGetParts2Req SearchGetParts2Request) SearchGetParts2() (SearchGetPar
 	if responseError != nil {
 		return responseSearchGetParts2, responseError
 	}
+
+	fmt.Println(string(body))
 
 	// Распарсить данные
 	responseError = responseSearchGetParts2.SearchGetParts2_UnmarshalJson(body)
