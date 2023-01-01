@@ -71,13 +71,13 @@ func (user User) AddToBasket(AddToBasketReq []AddToBasketRequest) (string, error
 
 	return string(body), nil
 	// Распарсить данные
-	//responseError = AddToBasketRes.AddToBasket_UnmarshalJson(body)
+	//responseError = AddToBasketRes.addToBasket_UnmarshalJson(body)
 
 	//return AddToBasketRes, responseError
 }
 
 // Метод для SearchGetParts2, который преобразует приходящий ответ в структуру
-func (responseAddToBasket *AddToBasketResponse) AddToBasket_UnmarshalJson(body []byte) error {
+func (responseAddToBasket *AddToBasketResponse) addToBasket_UnmarshalJson(body []byte) error {
 	responseError := json.Unmarshal(body, &responseAddToBasket)
 	if responseError != nil {
 		return responseError

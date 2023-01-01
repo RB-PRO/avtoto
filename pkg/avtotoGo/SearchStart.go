@@ -79,13 +79,13 @@ func (user User) SearchStartRequest(searchStartReq SearchStartRequest) (SearchSt
 	}
 
 	// Распарсить данные
-	responseError = responseSearchStart.SearchStart_UnmarshalJson(body)
+	responseError = responseSearchStart.searchStart_UnmarshalJson(body)
 
 	return responseSearchStart, responseError
 }
 
 // Метод для SearchStartResponse, который преобразует приходящий ответ в структуру
-func (responseSearchStart *SearchStartResponse) SearchStart_UnmarshalJson(body []byte) error {
+func (responseSearchStart *SearchStartResponse) searchStart_UnmarshalJson(body []byte) error {
 	responseError := json.Unmarshal(body, &responseSearchStart)
 	if responseError != nil {
 		return responseError

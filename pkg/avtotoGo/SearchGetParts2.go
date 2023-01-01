@@ -3,7 +3,6 @@ package avtotoGo
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 )
 
 // Метод SearchGetParts2 предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа.
@@ -43,11 +42,51 @@ type SearchGetParts2Response struct {
 	} `json:"Parts"`
 
 	Info struct {
-		Errors       []string `json:"Errors"`       // Массив ошибок, возникший в процессе поиска
-		SearchStatus int      `json:"SearchStatus"` // Информация о статусе процесса на сервере AvtoTO. Возможные варианты значений:
-		SearchID     string   `json:"SearchId"`     // Уникальный идентификатор запроса поиска, возвращается в случае удачного поиска
+		Errors       []string          `json:"Errors"`       // Массив ошибок, возникший в процессе поиска
+		SearchStatus int               `json:"SearchStatus"` // Информация о статусе процесса на сервере AvtoTO. Возможные варианты значений:
+		SearchID     CustomIntToString `json:"SearchId"`     // Уникальный идентификатор запроса поиска, возвращается в случае удачного поиска
 	} `json:"Info"`
 	// [*] — эти данные необходимо сохранить в Вашей системе, в дальнейшем они понадобятся для добавления запчастей в корзину
+}
+
+// Структура созданная для десериализация JSON с неправильной типизацией - https://habr.com/ru/post/502176/
+// Так получилось, что API можетотдавать данные по ключу SearchID как string, так и integer. Эта структура и 2 объявленных для неё метода способны изменить это
+// и предоставить постоянный рабочий функционал, который позволяет держать значение элемента массива типа string в завосимости от входного параметра.
+type CustomIntToString struct {
+	value string
+}
+
+// Кастомное декодирование JSON для ключа SearchID
+func (cis *CustomIntToString) UnmarshalJSON(data []byte) error {
+	if data[0] == 34 { // Если первый символ - Кавычка
+		err := json.Unmarshal(data, &cis.value)
+		if err != nil {
+			return errors.New("CustomIntToString: UnmarshalJSON: Find 34: " + err.Error())
+		}
+	} else {
+		// Добавление Кавычек в начале и в конце массива byte
+		newData := make([]byte, 1)
+		newData[0] = 34
+		newData = append(newData, data...)
+		newData[len(newData)-1] = 34
+
+		err := json.Unmarshal(newData, &cis.value)
+		if err != nil {
+			return errors.New("CustomIntToString: UnmarshalJSON: Find't 34: " + err.Error())
+		}
+	}
+	return nil
+}
+
+// Кастомное кодирование JSON для ключа SearchID
+func (cf CustomIntToString) MarshalJSON() ([]byte, error) {
+	json, err := json.Marshal(cf.value)
+	return json, err
+}
+
+// Получить значение
+func (cf CustomIntToString) Value() string {
+	return cf.value
 }
 
 // Получить данные по методу SearchGetParts2
@@ -68,16 +107,16 @@ func (SearchGetParts2Req SearchGetParts2Request) SearchGetParts2() (SearchGetPar
 		return responseSearchGetParts2, responseError
 	}
 
-	fmt.Println(string(body))
+	//fmt.Println(string(body))
 
 	// Распарсить данные
-	responseError = responseSearchGetParts2.SearchGetParts2_UnmarshalJson(body)
+	responseError = responseSearchGetParts2.searchGetParts2_UnmarshalJson(body)
 
 	return responseSearchGetParts2, responseError
 }
 
 // Метод для SearchGetParts2, который преобразует приходящий ответ в структуру
-func (responseSearchGetParts2 *SearchGetParts2Response) SearchGetParts2_UnmarshalJson(body []byte) error {
+func (responseSearchGetParts2 *SearchGetParts2Response) searchGetParts2_UnmarshalJson(body []byte) error {
 	responseError := json.Unmarshal(body, &responseSearchGetParts2)
 	if responseError != nil {
 		return responseError

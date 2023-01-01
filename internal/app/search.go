@@ -8,7 +8,6 @@ package app
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -70,30 +69,13 @@ func Search() {
 		"\nСклад", SearchGetParts2Res.Parts[0].Storage,
 		"\nСрок доставки", SearchGetParts2Res.Parts[0].Delivery,
 		"\nМаксимальное количество для заказа", SearchGetParts2Res.Parts[0].MaxCount,
-		"\nКратность заказа", SearchGetParts2Res.Parts[0].BaseCount)
-}
-
-// Тестовая функция, чтобы вылечить SearchID(Возвращается int или string)
-func Test_UnmarshalJson() {
-	f, err := os.Open("data.txt")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	fContent, err := ioutil.ReadFile("data.txt")
-	if err != nil {
-		panic(err)
-	}
-	data := string(fContent)
-
-	// ***
-
-	var responseSearchGetParts2 avtotoGo.SearchGetParts2Response
-	responseError := responseSearchGetParts2.SearchGetParts2_UnmarshalJson([]byte(data))
-
-	fmt.Println(responseError)
-
+		"\nКратность заказа", SearchGetParts2Res.Parts[0].BaseCount,
+		"\nДата обновления склада", SearchGetParts2Res.Parts[0].StorageDate,
+		"\nПроцент успешных закупок из общего числа заказов", SearchGetParts2Res.Parts[0].DeliveryPercent,
+		"\nПроцент удержания при возврате товара", SearchGetParts2Res.Parts[0].BackPercent,
+		"\nНомер запчасти в списке результата поиска", SearchGetParts2Res.Parts[0].AvtotoData.PartId,
+		"\nСтатус:", SearchGetParts2Res.Status(),
+		"\nSearchID", SearchGetParts2Res.Info.SearchID.Value())
 }
 
 // Получение значение из файла
