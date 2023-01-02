@@ -41,8 +41,8 @@ func Basket() {
 	AddToBasketReq[0].Name = "Кольцо уплотнительное Mercedes-Benz N007603010406 (10)"
 	AddToBasketReq[0].Storage = "Москва"
 	AddToBasketReq[0].Delivery = "17"
-	AddToBasketReq[0].PartId = "0"
-	AddToBasketReq[0].SearchID = "116526597"
+	//AddToBasketReq[0].PartId = "0"
+	//AddToBasketReq[0].SearchID = "116526597"
 
 	AddToBasketRes, errorBasket := user.AddToBasket(AddToBasketReq)
 	if errorBasket != nil {

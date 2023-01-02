@@ -46,9 +46,7 @@ func Search() {
 	if errorSearch != nil {
 		log.Fatal(errorSearch)
 	}
-	fmt.Println("Найденный ProcessSearchID", datasSearchStartRequest.ProcessSearchID)
-
-	time.Sleep(8 * time.Second) // Задержка, чтобы сервис нашёл данные на сервере
+	fmt.Println("Полученный ProcessSearchID", datasSearchStartRequest.ProcessSearchID)
 
 	// ************************** SearchGetParts2 ************************** По коду ProcessSearchID получение найденных данных
 	// Преобразовать Ответ метода SearchStart в запрос для метода SearchGetParts2
@@ -56,11 +54,25 @@ func Search() {
 	if errorSearch != nil {
 		log.Fatal(errorSearch)
 	}
-	// Вызов метода SearchGetParts2
-	SearchGetParts2Res, errorSearch := SearchGetParts2Req.SearchGetParts2()
-	if errorSearch != nil {
-		log.Fatal(errorSearch)
+
+	time.Sleep(1 * time.Second) // Задержка, чтобы сервис нашёл данные на сервере
+	// Ответ сервера на запрос
+	var SearchGetParts2Res avtotoGo.SearchGetParts2Response
+	for { // В цикле опрашиваем по методу SearchGetParts2 с переданным параметром ProcessSearchID
+		// Вызов метода SearchGetParts2
+		SearchGetParts2Res, errorSearch = SearchGetParts2Req.SearchGetParts2()
+		if errorSearch != nil {
+			log.Fatal(errorSearch)
+		}
+
+		if SearchGetParts2Res.ErrorString() != "Запрос в обработке" {
+			break
+		} else {
+			fmt.Println("Запрос в обработке. Ждём 1 секунду и заново опрашиваешь по методу SearchGetParts2")
+		}
+		time.Sleep(1 * time.Second) // Задержка, чтобы сервис нашёл данные на сервере
 	}
+
 	fmt.Println("Всего найдено", len(SearchGetParts2Res.Parts), "деталей, например первая найденная деталь:",
 		"\nКод детали", SearchGetParts2Res.Parts[0].Code,
 		"\nПроизводитель", SearchGetParts2Res.Parts[0].Manuf,
@@ -76,6 +88,17 @@ func Search() {
 		"\nНомер запчасти в списке результата поиска", SearchGetParts2Res.Parts[0].AvtotoData.PartId,
 		"\nСтатус:", SearchGetParts2Res.Status(),
 		"\nSearchID", SearchGetParts2Res.Info.SearchID.Value())
+
+	// ************************** AddToBasket ************************** Добавление товара в корзину
+	basketItems := make([]avtotoGo.AddToBasketRequest, 1)
+	basketItem, errorBasketItem := SearchGetParts2Res.SearchResInBasketReq(0)
+	if errorBasketItem != nil {
+		fmt.Println(errorBasketItem)
+	}
+	basketItems[0] = basketItem
+	fmt.Printf("%#v\n", basketItem)
+	user.AddToBasket(basketItems)
+
 }
 
 // Получение значение из файла

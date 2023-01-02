@@ -3,6 +3,7 @@ package avtotoGo
 import (
 	"encoding/json"
 	"errors"
+	"strconv"
 )
 
 // Метод SearchGetParts2 предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа.
@@ -49,6 +50,29 @@ type SearchGetParts2Response struct {
 	// [*] — эти данные необходимо сохранить в Вашей системе, в дальнейшем они понадобятся для добавления запчастей в корзину
 }
 
+func (SearchGetParts2Res SearchGetParts2Response) SearchResInBasketReq(partCount int) (AddToBasketRequest, error) {
+	SearchID_int, errorAtoi := SearchGetParts2Res.Info.SearchID.integer()
+	if errorAtoi != nil {
+		return AddToBasketRequest{}, errorAtoi
+	}
+	return AddToBasketRequest{
+		Code: SearchGetParts2Res.Parts[partCount].Code,
+
+		Manuf:    SearchGetParts2Res.Parts[partCount].Manuf,
+		Name:     SearchGetParts2Res.Parts[partCount].Name,
+		Price:    float64(SearchGetParts2Res.Parts[partCount].Price),
+		Storage:  SearchGetParts2Res.Parts[partCount].Storage,
+		Delivery: SearchGetParts2Res.Parts[partCount].Delivery,
+
+		Count:    1,
+		PartId:   SearchGetParts2Res.Parts[partCount].AvtotoData.PartId,
+		SearchID: SearchID_int,
+		//RemoteID: 1,
+		//Comment: "",
+	}, nil
+
+}
+
 // Структура созданная для десериализация JSON с неправильной типизацией - https://habr.com/ru/post/502176/
 // Так получилось, что API можетотдавать данные по ключу SearchID как string, так и integer. Эта структура и 2 объявленных для неё метода способны изменить это
 // и предоставить постоянный рабочий функционал, который позволяет держать значение элемента массива типа string в завосимости от входного параметра.
@@ -84,35 +108,45 @@ func (cf CustomIntToString) MarshalJSON() ([]byte, error) {
 	return json, err
 }
 
+// Вернуть строку для SearchID. Необходимо для преобразования SearchGetParts2.Parts[int] > AddToBasket
+func (cf CustomIntToString) integer() (int, error) {
+	return strconv.Atoi(cf.value)
+}
+
 // Получить значение
 func (cf CustomIntToString) Value() string {
 	return cf.value
 }
 
+// Получить количество Parts метода SearchGetParts2
+func (SearchGetParts2Res SearchGetParts2Response) LenParts() int {
+	return len(SearchGetParts2Res.Parts)
+}
+
 // Получить данные по методу SearchGetParts2
 func (SearchGetParts2Req SearchGetParts2Request) SearchGetParts2() (SearchGetParts2Response, error) {
-
 	// Ответ от сервера
-	var responseSearchGetParts2 SearchGetParts2Response
+	var SearchGetParts2Res SearchGetParts2Response
 
 	// Подготовить данные для загрузки
 	bytesRepresentation, responseError := json.Marshal(SearchGetParts2Req)
 	if responseError != nil {
-		return responseSearchGetParts2, responseError
+		return SearchGetParts2Response{}, responseError
 	}
 
-	// Отправить данные
+	// Выполнить запрос
 	body, responseError := HttpPost(bytesRepresentation, "SearchGetParts2")
 	if responseError != nil {
-		return responseSearchGetParts2, responseError
+		return SearchGetParts2Response{}, responseError
 	}
 
-	//fmt.Println(string(body))
-
 	// Распарсить данные
-	responseError = responseSearchGetParts2.searchGetParts2_UnmarshalJson(body)
+	responseError = SearchGetParts2Res.searchGetParts2_UnmarshalJson(body)
+	if responseError != nil {
+		return SearchGetParts2Response{}, responseError
+	}
 
-	return responseSearchGetParts2, responseError
+	return SearchGetParts2Res, responseError
 }
 
 // Метод для SearchGetParts2, который преобразует приходящий ответ в структуру
@@ -122,9 +156,9 @@ func (responseSearchGetParts2 *SearchGetParts2Response) searchGetParts2_Unmarsha
 		return responseError
 	}
 
-	if len(responseSearchGetParts2.Info.Errors) != 0 {
-		return errors.New(responseSearchGetParts2.Info.Errors[0])
-	}
+	//if len(responseSearchGetParts2.Info.Errors) != 0 {
+	//	return errors.New(responseSearchGetParts2.Info.Errors[0])
+	//}
 	return nil
 }
 
@@ -143,5 +177,14 @@ func (SearchGetParts2Res SearchGetParts2Response) Status() string {
 		return "Результат получен"
 	default:
 		return "Another error"
+	}
+}
+
+// Получить ошибку из ответа метода SearchGetParts2
+func (SearchGetParts2Res SearchGetParts2Response) ErrorString() string {
+	if len(SearchGetParts2Res.Info.Errors) == 0 {
+		return ""
+	} else {
+		return SearchGetParts2Res.Info.Errors[0]
 	}
 }

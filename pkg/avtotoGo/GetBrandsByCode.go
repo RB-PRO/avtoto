@@ -31,6 +31,11 @@ type GetBrandsByCodeResponse struct {
 	} `json:"Info"`
 }
 
+// Получить количество Parts метода GetBrandsByCode
+func (GetBrandsByCodeRes GetBrandsByCodeResponse) LenParts() int {
+	return len(GetBrandsByCodeRes.Brands)
+}
+
 /* -------------------------------------------- */
 /* ----**** JSON/http method functions ****---- */
 /* -------------------------------------------- */
@@ -47,17 +52,20 @@ func (user User) GetBrandsByCode(GetBrandsByCodeReq GetBrandsByCodeRequest) (Get
 	// Подготовить данные для загрузки
 	bytesRepresentation, responseError := json.Marshal(GetBrandsByCodeReq)
 	if responseError != nil {
-		return GetBrandsByCodeRes, responseError
+		return GetBrandsByCodeResponse{}, responseError
 	}
 
-	// Отправить данные
+	// Выполнить запрос
 	body, responseError := HttpPost(bytesRepresentation, "GetBrandsByCode")
 	if responseError != nil {
-		return GetBrandsByCodeRes, responseError
+		return GetBrandsByCodeResponse{}, responseError
 	}
 
 	// Распарсить данные
 	responseError = GetBrandsByCodeRes.GetBrandsByCode_UnmarshalJson(body)
+	if responseError != nil {
+		return GetBrandsByCodeResponse{}, responseError
+	}
 
 	return GetBrandsByCodeRes, responseError
 }
@@ -73,4 +81,13 @@ func (responseGetBrandsByCode *GetBrandsByCodeResponse) GetBrandsByCode_Unmarsha
 		return errors.New(responseGetBrandsByCode.Info.Errors[0])
 	}
 	return nil
+}
+
+// Получить ошибку из ответа метода GetBrandsByCode
+func (GetBrandsByCodeRes GetBrandsByCodeResponse) ErrorString() string {
+	if len(GetBrandsByCodeRes.Info.Errors) == 0 {
+		return ""
+	} else {
+		return GetBrandsByCodeRes.Info.Errors[0]
+	}
 }

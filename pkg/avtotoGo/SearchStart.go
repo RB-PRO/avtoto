@@ -40,10 +40,10 @@ type SearchStartResponse struct {
 
 // Преобразование ответа в запрос. SearchStartResponse > SearchGetParts2Request
 func (searchStartRes SearchStartResponse) SearchResInReq() (SearchGetParts2Request, error) {
-	// Проверка на Error в структуре ответа
-	if len(searchStartRes.Info.Errors) != 0 {
-		return SearchGetParts2Request{}, errors.New(searchStartRes.Info.Errors[0])
-	}
+	//// Проверка на Error в структуре ответа
+	//if len(searchStartRes.Info.Errors) != 0 {
+	//	return SearchGetParts2Request{}, errors.New(searchStartRes.Info.Errors[0])
+	//}
 
 	// Проверка существование ProcessSearchID
 	if searchStartRes.ProcessSearchID == "" {
@@ -51,6 +51,11 @@ func (searchStartRes SearchStartResponse) SearchResInReq() (SearchGetParts2Reque
 	}
 
 	return SearchGetParts2Request{ProcessSearchId: searchStartRes.ProcessSearchID}, nil
+}
+
+// Получить ProcessSearchID из ответа метода SearchStart
+func (searchStartRes SearchStartResponse) ProcessSearchCode() string {
+	return searchStartRes.ProcessSearchID
 }
 
 /* -------------------------------------------- */
@@ -72,7 +77,7 @@ func (user User) SearchStartRequest(searchStartReq SearchStartRequest) (SearchSt
 		return responseSearchStart, responseError
 	}
 
-	// Отправить данные
+	// Выполнить запрос
 	body, responseError := HttpPost(bytesRepresentation, "SearchStart")
 	if responseError != nil {
 		return responseSearchStart, responseError
@@ -80,7 +85,9 @@ func (user User) SearchStartRequest(searchStartReq SearchStartRequest) (SearchSt
 
 	// Распарсить данные
 	responseError = responseSearchStart.searchStart_UnmarshalJson(body)
-
+	if responseError != nil {
+		return responseSearchStart, responseError
+	}
 	return responseSearchStart, responseError
 }
 
@@ -91,8 +98,22 @@ func (responseSearchStart *SearchStartResponse) searchStart_UnmarshalJson(body [
 		return responseError
 	}
 
-	if len(responseSearchStart.Info.Errors) != 0 {
-		return errors.New(responseSearchStart.Info.Errors[0])
-	}
+	//if len(responseSearchStart.Info.Errors) != 0 {
+	//	return errors.New(responseSearchStart.Info.Errors[0])
+	//}
 	return nil
+}
+
+// Получить ошибку из ответа метода SearchStart
+func (SearchStartRes SearchStartResponse) ErrorString() string {
+	if len(SearchStartRes.Info.Errors) == 0 {
+		return ""
+	} else {
+		return SearchStartRes.Info.Errors[0]
+	}
+}
+
+// Получить логи из ответа метода SearchStart
+func (responseSearchStart SearchStartResponse) LogsString() string {
+	return responseSearchStart.Info.Logs
 }
