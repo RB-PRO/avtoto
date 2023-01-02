@@ -96,7 +96,10 @@ func Search() {
 		fmt.Println(errorBasketItem)
 	}
 	basketItems[0] = basketItem
-	fmt.Printf("%#v\n", basketItem)
+	basketItems[0].RemoteID = 1
+	basketItems[0].Count = 10
+	fmt.Printf("%#v\n", basketItems)
+
 	user.AddToBasket(basketItems)
 
 }
