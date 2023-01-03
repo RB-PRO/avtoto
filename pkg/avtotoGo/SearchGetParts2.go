@@ -8,8 +8,6 @@ import (
 
 // Метод SearchGetParts2 предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа.
 
-//const SearchStatus = [...]string{"Неверно указан ID процесса ProcessSearchId", "Запрос не найден", "Запрос в обработке", "Ошибка данных", "Результат получен"}
-
 // Структура запроса метода SearchGetParts2
 type SearchGetParts2Request struct {
 	ProcessSearchId string `json:"ProcessSearchId"` // Уникальный идентификатор процесса поиска (тип: строка).
@@ -70,7 +68,6 @@ func (SearchGetParts2Res SearchGetParts2Response) SearchResInBasketReq(partCount
 		//RemoteID: 1,
 		//Comment: "",
 	}, nil
-
 }
 
 // Структура созданная для десериализация JSON с неправильной типизацией - https://habr.com/ru/post/502176/
@@ -92,7 +89,8 @@ func (cis *CustomIntToString) UnmarshalJSON(data []byte) error {
 		newData := make([]byte, 1)
 		newData[0] = 34
 		newData = append(newData, data...)
-		newData[len(newData)-1] = 34
+		newData = append(newData, 34)
+		//newData[len(data)] = 34
 
 		err := json.Unmarshal(newData, &cis.value)
 		if err != nil {
@@ -139,6 +137,8 @@ func (SearchGetParts2Req SearchGetParts2Request) SearchGetParts2() (SearchGetPar
 	if responseError != nil {
 		return SearchGetParts2Response{}, responseError
 	}
+
+	//fmt.Println(string(body))
 
 	// Распарсить данные
 	responseError = SearchGetParts2Res.searchGetParts2_UnmarshalJson(body)

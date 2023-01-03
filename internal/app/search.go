@@ -35,7 +35,7 @@ func Search() {
 	if errorSearch != nil {
 		log.Fatal(errorSearch)
 	}
-	fmt.Println("Для артикла", mySearchCode, "найдено", len(dataGetBrandsByCode.Brands), "бренда(ов).",
+	fmt.Println("> Для артикла", mySearchCode, "найдено", len(dataGetBrandsByCode.Brands), "бренда(ов).",
 		"\nПервый найденный бренд имеет производителя", dataGetBrandsByCode.Brands[0].Manuf, "и имя", dataGetBrandsByCode.Brands[0].Name)
 
 	// ************************** SearchStart ************************** Запуск поиска и получение кода ProcessSearchID
@@ -46,7 +46,7 @@ func Search() {
 	if errorSearch != nil {
 		log.Fatal(errorSearch)
 	}
-	fmt.Println("Полученный ProcessSearchID", datasSearchStartRequest.ProcessSearchID)
+	fmt.Println("> Полученный ProcessSearchID", datasSearchStartRequest.ProcessSearchID)
 
 	// ************************** SearchGetParts2 ************************** По коду ProcessSearchID получение найденных данных
 	// Преобразовать Ответ метода SearchStart в запрос для метода SearchGetParts2
@@ -73,7 +73,7 @@ func Search() {
 		time.Sleep(1 * time.Second) // Задержка, чтобы сервис нашёл данные на сервере
 	}
 
-	fmt.Println("Всего найдено", len(SearchGetParts2Res.Parts), "деталей, например первая найденная деталь:",
+	fmt.Println("> Всего найдено", len(SearchGetParts2Res.Parts), "деталей, например первая найденная деталь:",
 		"\nКод детали", SearchGetParts2Res.Parts[0].Code,
 		"\nПроизводитель", SearchGetParts2Res.Parts[0].Manuf,
 		"\nНазвание", SearchGetParts2Res.Parts[0].Name,
@@ -98,9 +98,30 @@ func Search() {
 	basketItems[0] = basketItem
 	basketItems[0].RemoteID = 1
 	basketItems[0].Count = 10
-	fmt.Printf("%#v\n", basketItems)
 
-	user.AddToBasket(basketItems)
+	AddToBasketRes, errorRes := user.AddToBasket(basketItems)
+	if errorRes != nil {
+		fmt.Println(errorRes)
+	}
+
+	basketRemoteID := AddToBasketRes.DoneInnerID[0].RemoteID
+	basketInnerID := AddToBasketRes.DoneInnerID[0].InnerID
+	fmt.Println("> Метод AddToBasket добавил в корзину товар с RemoteID", basketRemoteID, "и InnerID", basketInnerID)
+
+	// ************************** UpdateCountInBasket ************************** Обновление количества товара в корзине
+	basketItemsUpdates := make([]avtotoGo.UpdateCountInBasketRequest, 1)
+	basketItemsUpdate, errorBasketItemUpdate := AddToBasketRes.BasketResInUpdateReq(0)
+	if errorBasketItemUpdate != nil {
+		fmt.Println(errorBasketItemUpdate)
+	}
+	basketItemsUpdates[0] = basketItemsUpdate
+	basketItemsUpdates[0].NewCount = 20
+
+	UpdateCountinBasketRes, errorBasketUpdate := user.UpdateCountInBasket(basketItemsUpdates)
+	if errorBasketUpdate != nil {
+		fmt.Println(errorBasketUpdate)
+	}
+	fmt.Println("> Метод UpdateCountinBasketRes выполнился со статусом", UpdateCountinBasketRes.Done)
 
 }
 

@@ -4,7 +4,8 @@ package avtotoGo
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
+	"strconv"
 )
 
 // Вся структура запроса метода AddToBasket
@@ -29,51 +30,66 @@ type AddToBasketRequest struct {
 	RemoteID int    `json:"RemoteID"`          // ID запчасти в Вашей системе(тип: целое)
 	Comment  string `json:"Comment,omitempty"` // Ваш комментарий к запчасти (тип: строка) [необязательный параметр]
 	// [*] — данные, сохраненные в результате поиска
+	// Необходимо, чтобы количество для покупки Count не превышало максимальное количество MaxCount и соответствовало кратности заказа BaseCount
 }
 
 // Тело ответа AddToBasket
 type AddToBasketResponse struct {
-	Code     string  `json:"Code"`     // [*] Код детали
-	Manuf    string  `json:"Manuf"`    // [*] Производитель
-	Name     string  `json:"Name"`     // [*] Название
-	Price    float64 `json:"Price"`    // Цена
-	Storage  string  `json:"Storage"`  // [*] Склад
-	Delivery string  `json:"Delivery"` // [*] Срок доставки
+	Done   []int      `json:"Done"` // Массив RemoteID успешно добавленных элементов
+	Errors []struct { // Массив ошибок:
+		Type  string `json:"type"`  // Тип ошибки: RemoteID - Если элемент прошел проверку на корректность, но возникла ошибка при добавлении элемента в корзину или Element, если возникла ошибка при проверке на корректность
+		Id    int    `json:"id"`    // RemoteID или номер элемента
+		Error string `json:"error"` // Описание ошибки
+	} `json:"Errors"`
+	Info struct { // Общая информация по запросу
+		DocVersion string `json:"DocVersion"` // Версия документации
+		IP         string `json:"IP"`         // IP используемой машины
+		UserID     int    `json:"UserID"`     // ID пользователя
+	} `json:"Info"`
+	DoneInnerID []struct { // Массив успешно добавленных запчастей с внутренними ID корзины:
+		RemoteID int `json:"RemoteID"` // ID товара в Вашей системе
+		InnerID  int `json:"InnerID"`  // ID товара в корзине AvtoTO
+	} `json:"DoneInnerId"`
+}
 
-	Count    string `json:"Count"`    // [*] количество для покупки (тип: целое)
-	PartId   string `json:"PartId"`   // [*] Номер запчасти в списке результата поиска (тип: целое)
-	SearchID string `json:"SearchID"` // [*] Номер поиска (тип: целое)
-	RemoteID string `json:"RemoteID"` // ID запчасти в Вашей системе(тип: целое)
-	Comment  string `json:"Comment "` // Ваш комментарий к запчасти (тип: строка) [необязательный параметр]
-	// [*] — данные, сохраненные в результате поиска
+// Преобразовать ответ после добавления товара в корзину в запрос на обновление
+func (AddToBasketRes AddToBasketResponse) BasketResInUpdateReq(partCount int) (UpdateCountInBasketRequest, error) {
+	if len(AddToBasketRes.DoneInnerID) == 0 {
+		return UpdateCountInBasketRequest{}, errors.New("Length AddToBasketRes.DoneInnerID = 0")
+	}
+	return UpdateCountInBasketRequest{
+		InnerID:  AddToBasketRes.DoneInnerID[partCount].InnerID,
+		RemoteID: AddToBasketRes.DoneInnerID[partCount].RemoteID,
+	}, nil
 }
 
 // Получить данные по методу AddToBasket
-func (user User) AddToBasket(AddToBasketReq []AddToBasketRequest) (string, error) {
+func (user User) AddToBasket(AddToBasketReq []AddToBasketRequest) (AddToBasketResponse, error) {
 	AddToBasketReqData := addToBasketRequestData{User: user, Parts: AddToBasketReq}
 
 	// Ответ от сервера
-	//var AddToBasketRes AddToBasketResponse
+	var AddToBasketRes AddToBasketResponse
 
 	// Подготовить данные для загрузки
 	bytesRepresentation, responseError := json.Marshal(AddToBasketReqData)
 	if responseError != nil {
-		return "", responseError
+		return AddToBasketResponse{}, responseError
 	}
 
 	// Отправить данные
 	body, responseError := HttpPost(bytesRepresentation, "AddToBasket")
 	if responseError != nil {
-		return "", responseError
+		return AddToBasketResponse{}, responseError
 	}
 
-	fmt.Println(string(body))
+	//fmt.Println(string(body))
 
-	return string(body), nil
-	// Распарсить данные
-	//responseError = AddToBasketRes.addToBasket_UnmarshalJson(body)
-
-	//return AddToBasketRes, responseError
+	//Распарсить данные
+	responseError = AddToBasketRes.addToBasket_UnmarshalJson(body)
+	if responseError != nil {
+		return AddToBasketResponse{}, responseError
+	}
+	return AddToBasketRes, nil
 }
 
 // Метод для SearchGetParts2, который преобразует приходящий ответ в структуру
@@ -87,4 +103,19 @@ func (responseAddToBasket *AddToBasketResponse) addToBasket_UnmarshalJson(body [
 	//	return errors.New(responseAddToBasket.Info.Errors[0])
 	//}
 	return nil
+}
+
+// Получить ошибку из ответа метода AddToBasket
+func (AddToBasketRes AddToBasketResponse) ErrorString() string {
+	if len(AddToBasketRes.Errors) == 0 {
+		return ""
+	} else {
+		var exitString string
+		for _, valueBasketError := range AddToBasketRes.Errors {
+			exitString += "Тип ошибки " + valueBasketError.Type +
+				", RemoteID  " + strconv.Itoa(valueBasketError.Id) +
+				", Описание ошибки " + valueBasketError.Type + ". "
+		}
+		return exitString
+	}
 }
