@@ -16,9 +16,9 @@ type updateCountInBasketRequestData struct {
 
 // Тело запроса UpdateCountInBasket
 type UpdateCountInBasketRequest struct {
-	InnerID  int  `json:"InnerID"`  // Код детали — данные, сохраненные в результате добавления в корзину
-	RemoteID int  `json:"RemoteID"` // Производитель
-	NewCount uint `json:"NewCount"` // Название — Необходимо, чтобы новое количество NewCount не превышало максимальное количество MaxCount, и соответствовало кратности заказа BaseCount
+	InnerID  int  `json:"InnerID"`  // ID записи в корзине AvtoTO (тип: целое) — данные, сохраненные в результате добавления в корзину
+	RemoteID int  `json:"RemoteID"` // ID запчасти в Вашей системе (тип: целое)
+	NewCount uint `json:"NewCount"` // Необходимое количество запчастей в карзине (тип: целое, положительное) — Необходимо, чтобы новое количество NewCount не превышало максимальное количество MaxCount, и соответствовало кратности заказа BaseCount
 	// Необходимо, чтобы количество для покупки Count не превышало максимальное количество MaxCount и соответствовало кратности заказа BaseCount
 }
 

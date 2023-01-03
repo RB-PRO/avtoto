@@ -123,7 +123,21 @@ func Search() {
 	}
 	fmt.Println("> Метод UpdateCountinBasketRes выполнился верно для объектов в корзине с RemoteID", UpdateCountinBasketRes.Done)
 
+	// ************************** CheckAvailabilityInBasket ************************** Получить информацию по товару из корзины
+
 	// ************************** DeleteFromBasket ************************** Удилить товар из корзины
+	basketItemsDeletes := make([]avtotoGo.DeleteFromBasketRequest, 1)
+	basketItemsDelete, errorBasketItemDelete := AddToBasketRes.BasketResInDeleteReq(0)
+	if errorBasketItemDelete != nil {
+		fmt.Println(errorBasketItemDelete)
+	}
+	basketItemsDeletes[0] = basketItemsDelete
+
+	DeleteFromBasketRes, errorBusketDelete := user.DeleteFromBasket(basketItemsDeletes)
+	if errorBasketItemDelete != nil {
+		fmt.Println(errorBusketDelete)
+	}
+	fmt.Println("> Метод DeleteFromBasketRes выполнился со статусом", DeleteFromBasketRes.Done)
 
 }
 
