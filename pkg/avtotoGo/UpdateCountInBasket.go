@@ -2,7 +2,6 @@ package avtotoGo
 
 import (
 	"encoding/json"
-	"fmt"
 	"strconv"
 )
 
@@ -17,15 +16,17 @@ type updateCountInBasketRequestData struct {
 
 // Тело запроса UpdateCountInBasket
 type UpdateCountInBasketRequest struct {
-	InnerID  int `json:"Code"`  // Код детали — данные, сохраненные в результате добавления в корзину
-	RemoteID int `json:"Manuf"` // Производитель
-	NewCount int `json:"Name"`  // Название — Необходимо, чтобы новое количество NewCount не превышало максимальное количество MaxCount, и соответствовало кратности заказа BaseCount
+	InnerID  int  `json:"InnerID"`  // Код детали — данные, сохраненные в результате добавления в корзину
+	RemoteID int  `json:"RemoteID"` // Производитель
+	NewCount uint `json:"NewCount"` // Название — Необходимо, чтобы новое количество NewCount не превышало максимальное количество MaxCount, и соответствовало кратности заказа BaseCount
 	// Необходимо, чтобы количество для покупки Count не превышало максимальное количество MaxCount и соответствовало кратности заказа BaseCount
 }
 
 // Тело ответа AddToBasket
 type UpdateCountInBasketResponse struct {
-	Done   []int      `json:"Done"` // Массив RemoteID успешно добавленных элементов
+	Done []struct { // Массив RemoteID успешно добавленных элементов
+		RemoteID int `json:"RemoteID"`
+	} `json:"Done"`
 	Errors []struct { // Массив ошибок:
 		Type  string `json:"type"`  // Тип ошибки: RemoteID - Если элемент прошел проверку на корректность, но возникла ошибка при добавлении элемента в корзину или Element, если возникла ошибка при проверке на корректность
 		Id    int    `json:"id"`    // RemoteID или номер элемента
@@ -56,8 +57,6 @@ func (user User) UpdateCountInBasket(UpdateCountInBasketReq []UpdateCountInBaske
 	if responseError != nil {
 		return UpdateCountInBasketResponse{}, responseError
 	}
-
-	fmt.Println(string(body))
 
 	// Распарсить данные
 	responseError = UpdateCountInBasketRes.updateCountInBasket_UnmarshalJson(body)

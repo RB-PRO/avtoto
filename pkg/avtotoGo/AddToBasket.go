@@ -55,7 +55,7 @@ type AddToBasketResponse struct {
 // Преобразовать ответ после добавления товара в корзину в запрос на обновление
 func (AddToBasketRes AddToBasketResponse) BasketResInUpdateReq(partCount int) (UpdateCountInBasketRequest, error) {
 	if len(AddToBasketRes.DoneInnerID) == 0 {
-		return UpdateCountInBasketRequest{}, errors.New("Length AddToBasketRes.DoneInnerID = 0")
+		return UpdateCountInBasketRequest{}, errors.New("length AddToBasketRes.DoneInnerID = 0")
 	}
 	return UpdateCountInBasketRequest{
 		InnerID:  AddToBasketRes.DoneInnerID[partCount].InnerID,

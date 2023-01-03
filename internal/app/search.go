@@ -97,7 +97,7 @@ func Search() {
 	}
 	basketItems[0] = basketItem
 	basketItems[0].RemoteID = 1
-	basketItems[0].Count = 10
+	basketItems[0].Count = 20
 
 	AddToBasketRes, errorRes := user.AddToBasket(basketItems)
 	if errorRes != nil {
@@ -115,13 +115,15 @@ func Search() {
 		fmt.Println(errorBasketItemUpdate)
 	}
 	basketItemsUpdates[0] = basketItemsUpdate
-	basketItemsUpdates[0].NewCount = 20
+	basketItemsUpdates[0].NewCount = 300
 
 	UpdateCountinBasketRes, errorBasketUpdate := user.UpdateCountInBasket(basketItemsUpdates)
 	if errorBasketUpdate != nil {
 		fmt.Println(errorBasketUpdate)
 	}
-	fmt.Println("> Метод UpdateCountinBasketRes выполнился со статусом", UpdateCountinBasketRes.Done)
+	fmt.Println("> Метод UpdateCountinBasketRes выполнился верно для объектов в корзине с RemoteID", UpdateCountinBasketRes.Done)
+
+	// ************************** DeleteFromBasket ************************** Удилить товар из корзины
 
 }
 
