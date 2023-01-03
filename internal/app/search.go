@@ -124,6 +124,22 @@ func Search() {
 	fmt.Println("> Метод UpdateCountinBasketRes выполнился верно для объектов в корзине с RemoteID", UpdateCountinBasketRes.Done)
 
 	// ************************** CheckAvailabilityInBasket ************************** Получить информацию по товару из корзины
+	basketChecks := make([]avtotoGo.CheckAvailabilityInBasketRequest, 1)
+	basketCheck, errorbasketChecks := AddToBasketRes.BasketResInCheckReq(0)
+	if errorbasketChecks != nil {
+		fmt.Println(errorbasketChecks)
+	}
+	basketChecks[0] = basketCheck
+
+	CheckAvailabilityInBasketRes, errorCheckInBasket := user.CheckAvailabilityInBasket(basketChecks)
+	if errorCheckInBasket != nil {
+		fmt.Println(errorCheckInBasket)
+	}
+	availability, errorAvailability := CheckAvailabilityInBasketRes.Availability(0)
+	if errorAvailability != nil {
+		fmt.Println(errorAvailability)
+	}
+	fmt.Println("> Метод CheckAvailabilityInBasket.", availability+".", "Максимальное количество товара", CheckAvailabilityInBasketRes.PartsInfo[0].MaxCount)
 
 	// ************************** DeleteFromBasket ************************** Удилить товар из корзины
 	basketItemsDeletes := make([]avtotoGo.DeleteFromBasketRequest, 1)

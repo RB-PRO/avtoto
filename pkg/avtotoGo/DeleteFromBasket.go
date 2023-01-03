@@ -1,11 +1,11 @@
 package avtotoGo
 
+// Метод DeleteFromBasket удаляет запчасти из корзины
+
 import (
 	"encoding/json"
 	"strconv"
 )
-
-// Метод DeleteFromBasket удаляет запчасти из корзины
 
 // Вся структура запроса метода DeleteFromBasket
 type deleteFromBasketRequestData struct {
@@ -15,8 +15,8 @@ type deleteFromBasketRequestData struct {
 
 // Тело запроса DeleteFromBasket
 type DeleteFromBasketRequest struct {
-	InnerID  int `json:"InnerID"`  // Код детали — данные, сохраненные в результате добавления в корзину
-	RemoteID int `json:"RemoteID"` // Производитель
+	InnerID  int `json:"InnerID"`  // ID записи в корзине AvtoTO (тип: целое)
+	RemoteID int `json:"RemoteID"` // ID запчасти в Вашей системе (тип: целое)
 }
 
 // Тело ответа DeleteFromBasket

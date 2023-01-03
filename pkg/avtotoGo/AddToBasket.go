@@ -74,6 +74,17 @@ func (AddToBasketRes AddToBasketResponse) BasketResInDeleteReq(partCount int) (D
 	}, nil
 }
 
+// Преобразовать ответ после добавления товара в корзину в запрос на получение информации
+func (AddToBasketRes AddToBasketResponse) BasketResInCheckReq(partCount int) (CheckAvailabilityInBasketRequest, error) {
+	if len(AddToBasketRes.DoneInnerID) == 0 {
+		return CheckAvailabilityInBasketRequest{}, errors.New("length AddToBasketRes.DoneInnerID = 0")
+	}
+	return CheckAvailabilityInBasketRequest{
+		InnerID:  AddToBasketRes.DoneInnerID[partCount].InnerID,
+		RemoteID: AddToBasketRes.DoneInnerID[partCount].RemoteID,
+	}, nil
+}
+
 // Получить данные по методу AddToBasket
 func (user User) AddToBasket(AddToBasketReq []AddToBasketRequest) (AddToBasketResponse, error) {
 	AddToBasketReqData := addToBasketRequestData{User: user, Parts: AddToBasketReq}
