@@ -5,7 +5,6 @@ package avtotoGo
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -61,7 +60,7 @@ func (user User) GetOrdersStatus(GetOrdersStatusReq []GetOrdersStatusRequest) (G
 	if responseError != nil {
 		return GetOrdersStatusResponse{}, responseError
 	}
-	fmt.Println(string(body))
+
 	// Распарсить данные
 	responseError = GetOrdersStatusRes.GetOrdersStatus_UnmarshalJson(body)
 	if responseError != nil {

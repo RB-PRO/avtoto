@@ -177,7 +177,7 @@ func Search() {
 		fmt.Println("> Метод GetOrdersStatus.", orderStatus+".", GetOrdersStatusRes.OrdersInfo[0].Info.Progress_text+".", "Всего количество заказов", GetOrdersStatusRes.OrdersInfo[0].Info.Count)
 	*/
 
-	// ************************** DeleteFromBasket ************************** Удилить товар из корзины
+	// ************************** DeleteFromBasket ************************** Удалить товар из корзины
 	basketItemsDeletes := make([]avtotoGo.DeleteFromBasketRequest, 1)
 	basketItemsDelete, errorBasketItemDelete := AddToBasketRes.BasketResInDeleteReq(0)
 	if errorBasketItemDelete != nil {
@@ -190,6 +190,18 @@ func Search() {
 		fmt.Println(errorBusketDelete)
 	}
 	fmt.Println("> Метод DeleteFromBasketRes выполнился со статусом", DeleteFromBasketRes.Done)
+
+	// ************************** GetStatSearch ************************** статистики проценок по всем объединенным регистрациям.
+	statSearch, statSearchError := user.GetStatSearch()
+	if statSearchError != nil {
+		fmt.Println(statSearchError)
+	}
+	//fmt.Println(statSearch)
+	fmt.Println()
+	fmt.Println("statSearch.StatInfo.StatDateStart", statSearch.StatInfo.StatDateStart)
+	fmt.Println("statSearch.BrandsStatInfo.StatDateEnd", statSearch.BrandsStatInfo.StatDateEnd)
+
+	fmt.Println("statSearch.StatInfo.StatDateStartStamp.String()", statSearch.StatInfo.StatDateStartStamp.String())
 
 }
 
