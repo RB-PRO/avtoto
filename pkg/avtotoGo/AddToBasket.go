@@ -85,6 +85,28 @@ func (AddToBasketRes AddToBasketResponse) BasketResInCheckReq(partCount int) (Ch
 	}, nil
 }
 
+// Преобразовать ответ после добавления товара в корзину в запрос на добавление запчасти из корзины в заказы
+func (AddToBasketRes AddToBasketResponse) BasketResInOrdersReq(partCount int) (AddToOrdersFromBasketRequest, error) {
+	if len(AddToBasketRes.DoneInnerID) == 0 {
+		return AddToOrdersFromBasketRequest{}, errors.New("length AddToOrdersFromBasketRequest.DoneInnerID = 0")
+	}
+	return AddToOrdersFromBasketRequest{
+		InnerID:  AddToBasketRes.DoneInnerID[partCount].InnerID,
+		RemoteID: AddToBasketRes.DoneInnerID[partCount].RemoteID,
+	}, nil
+}
+
+// Преобразовать ответ после добавления товара в корзину в запрос на добавление запчасти из корзины в заказы
+func (AddToBasketRes AddToBasketResponse) BasketResInOrdersStatusReq(partCount int) (GetOrdersStatusRequest, error) {
+	if len(AddToBasketRes.DoneInnerID) == 0 {
+		return GetOrdersStatusRequest{}, errors.New("length GetOrdersStatusRequest.DoneInnerID = 0")
+	}
+	return GetOrdersStatusRequest{
+		InnerID:  AddToBasketRes.DoneInnerID[partCount].InnerID,
+		RemoteID: AddToBasketRes.DoneInnerID[partCount].RemoteID,
+	}, nil
+}
+
 // Получить данные по методу AddToBasket
 func (user User) AddToBasket(AddToBasketReq []AddToBasketRequest) (AddToBasketResponse, error) {
 	AddToBasketReqData := addToBasketRequestData{User: user, Parts: AddToBasketReq}

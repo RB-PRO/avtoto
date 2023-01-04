@@ -141,6 +141,22 @@ func Search() {
 	}
 	fmt.Println("> Метод CheckAvailabilityInBasket.", availability+".", "Максимальное количество товара", CheckAvailabilityInBasketRes.PartsInfo[0].MaxCount)
 
+	/*
+		// ************************** AddToOrdersFromBasket ************************** Добавить запчасть из корзины в заказы
+		orderBaskets := make([]avtotoGo.AddToOrdersFromBasketRequest, 1)
+		orderBasket, errorbasketChecks := AddToBasketRes.BasketResInOrdersReq(0)
+		if errorbasketChecks != nil {
+			fmt.Println(errorbasketChecks)
+		}
+		orderBaskets[0] = orderBasket
+
+		AddToOrdersFromBasketRes, errorOrders := user.AddToOrdersFromBasket(orderBaskets)
+		if errorOrders != nil {
+			fmt.Println(errorOrders)
+		}
+		fmt.Println("> Метод AddToOrdersFromBasket.", AddToOrdersFromBasketRes)
+	*/
+
 	// ************************** DeleteFromBasket ************************** Удилить товар из корзины
 	basketItemsDeletes := make([]avtotoGo.DeleteFromBasketRequest, 1)
 	basketItemsDelete, errorBasketItemDelete := AddToBasketRes.BasketResInDeleteReq(0)
