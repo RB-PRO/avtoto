@@ -157,6 +157,26 @@ func Search() {
 		fmt.Println("> Метод AddToOrdersFromBasket.", AddToOrdersFromBasketRes)
 	*/
 
+	/*
+		// ************************** GetOrdersStatus ************************** Статус заказа
+		orderStatusGets := make([]avtotoGo.GetOrdersStatusRequest, 1)
+		orderStatusGet, errorbasketChecks := AddToBasketRes.BasketResInOrdersStatusReq(0)
+		if errorbasketChecks != nil {
+			fmt.Println(errorbasketChecks)
+		}
+		orderStatusGets[0] = orderStatusGet
+
+		GetOrdersStatusRes, errorOrdersStatus := user.GetOrdersStatus(orderStatusGets)
+		if errorOrdersStatus != nil {
+			fmt.Println(errorOrdersStatus)
+		}
+		orderStatus, orderStatusError := GetOrdersStatusRes.Status(0)
+		if orderStatusError != nil {
+			fmt.Println(orderStatusError)
+		}
+		fmt.Println("> Метод GetOrdersStatus.", orderStatus+".", GetOrdersStatusRes.OrdersInfo[0].Info.Progress_text+".", "Всего количество заказов", GetOrdersStatusRes.OrdersInfo[0].Info.Count)
+	*/
+
 	// ************************** DeleteFromBasket ************************** Удилить товар из корзины
 	basketItemsDeletes := make([]avtotoGo.DeleteFromBasketRequest, 1)
 	basketItemsDelete, errorBasketItemDelete := AddToBasketRes.BasketResInDeleteReq(0)

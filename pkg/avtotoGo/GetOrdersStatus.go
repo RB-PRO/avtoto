@@ -4,6 +4,7 @@ package avtotoGo
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -24,9 +25,9 @@ type GetOrdersStatusRequest struct {
 // Тело ответа GetOrdersStatus
 type GetOrdersStatusResponse struct {
 	OrdersInfo []struct { // Массив с информацией о статусах заказов
-		RemoteID int        `json:"RemoteID"` // ID заказа в Вашей системе
-		InnerID  int        `json:"InnerID"`  // ID заказа в системе AvtoTO
-		Info     []struct { // массив данных о статусе заказа
+		RemoteID int      `json:"RemoteID"` // ID заказа в Вашей системе
+		InnerID  int      `json:"InnerID"`  // ID заказа в системе AvtoTO
+		Info     struct { // массив данных о статусе заказа
 			Progress      int      `json:"progress"`      // общий статус заказа (тип: целое)
 			Progress_text string   `json:"progress_text"` // общий статус заказа (тип: строка)
 			Count         int      `json:"count"`         // общее количество заказа (тип: целое)
@@ -90,5 +91,33 @@ func (GetOrdersStatusRes GetOrdersStatusResponse) ErrorString() string {
 				", ошибки " + strings.Join(valueBasketError.Errors, ";") + ". "
 		}
 		return exitString
+	}
+}
+
+// Получить статус заказа
+func (GetOrdersStatusRes GetOrdersStatusResponse) Status(partCount int) (string, error) {
+	if len(GetOrdersStatusRes.OrdersInfo) >= partCount {
+		switch GetOrdersStatusRes.OrdersInfo[partCount].Info.Progress {
+		case 1:
+			return "Ожидает обработки", nil
+		case 2:
+			return "Ожидает оплаты", nil
+		case 3:
+			return "Заказано", nil
+		case 4:
+			return "Закуплено", nil
+		case 5:
+			return "В пути", nil
+		case 6:
+			return "На складе", nil
+		case 7:
+			return "Выдано", nil
+		case 8:
+			return "Нет в наличии", nil
+		default:
+			return "null", errors.New("enother status GetOrdersStatusRes.OrdersInfo[partCount]")
+		}
+	} else {
+		return "null", errors.New("enother len(GetOrdersStatusRes.OrdersInfo[partCount])")
 	}
 }
