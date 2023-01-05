@@ -1,10 +1,5 @@
 package app
 
-// Файл для работы с методами:
-// - GetBrandsByCode
-// - SearchStart
-// - SearchGetParts2
-
 import (
 	"fmt"
 	"io"
