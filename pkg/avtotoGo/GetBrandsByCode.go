@@ -2,7 +2,6 @@ package avtotoGo
 
 import (
 	"encoding/json"
-	"errors"
 )
 
 // Метод GetBrandsByCode предназначен для поиска списка брендов по артикулу запчасти
@@ -62,7 +61,7 @@ func (user User) GetBrandsByCode(GetBrandsByCodeReq GetBrandsByCodeRequest) (Get
 	}
 
 	// Распарсить данные
-	responseError = GetBrandsByCodeRes.GetBrandsByCode_UnmarshalJson(body)
+	responseError = GetBrandsByCodeRes.UnmarshalJSON(body)
 	if responseError != nil {
 		return GetBrandsByCodeResponse{}, responseError
 	}
@@ -71,15 +70,17 @@ func (user User) GetBrandsByCode(GetBrandsByCodeReq GetBrandsByCodeRequest) (Get
 }
 
 // Метод для SearchStartResponse, который преобразует приходящий ответ в структуру
-func (responseGetBrandsByCode *GetBrandsByCodeResponse) GetBrandsByCode_UnmarshalJson(body []byte) error {
+
+func (responseGetBrandsByCode *GetBrandsByCodeResponse) UnmarshalJSON(body []byte) error {
+	//func (responseGetBrandsByCode *GetBrandsByCodeResponse) GetBrandsByCode_UnmarshalJson(body []byte) error {
 	responseError := json.Unmarshal(body, &responseGetBrandsByCode)
 	if responseError != nil {
 		return responseError
 	}
 
-	if len(responseGetBrandsByCode.Info.Errors) != 0 {
-		return errors.New(responseGetBrandsByCode.Info.Errors[0])
-	}
+	//if len(responseGetBrandsByCode.Info.Errors) != 0 {
+	//	return errors.New(responseGetBrandsByCode.Info.Errors[0])
+	//}
 	return nil
 }
 
