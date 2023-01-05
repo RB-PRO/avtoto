@@ -2,3 +2,5 @@ fileOut.xlsx
 UserId.txt
 UserLogin.txt
 UserPassword.txt
+*.xlsx
+*.txt

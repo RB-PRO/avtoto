@@ -227,22 +227,3 @@ func dataFile(filename string) (string, error) {
 
 	return string(data[:n]), nil
 }
-
-/*
-case 'cannot create client': return 'Не получилось соединиться с сервером';
-
-	case 'no result':            return 'Сервер не ответил';
-	case 'wrong params':         return 'Неверные параметры соединения';
-	case 'wrong parts':          return 'Ошибка данных';
-	case 'error code':           return 'Неверный артикул';
-	private $progress_list = array(
-	    '2'=>  'Ожидает оплаты',
-	    '1'=>  'Ожидает обработки',
-	    '3'=>  'Заказано',
-	    '4'=>  'Закуплено',
-	    '5'=>  'В пути',
-	    '6'=>  'На складе',
-	    '7'=>  'Выдано',
-	    '8'=>  'Нет в наличии'
-	);
-*/
