@@ -1,7 +1,7 @@
 all: run
 
 run:
-	go run cmd/avtoto/main.go
+	go run example/main.go
 
 push:
 	git push git@github.com:RB-PRO/avtoto.git

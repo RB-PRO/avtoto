@@ -1,4 +1,4 @@
-package app
+package main
 
 import (
 	"fmt"
@@ -8,23 +8,23 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rb-pro/avtoto/pkg/avtotoGo"
+	avtoto "github.com/rb-pro/avtoto"
 )
 
-func Search() {
+func main() {
 	// Загрузка данных из файлов. UserId, UserLogin, UserPassword.
-	userIdStr, _ := dataFile("UserId.txt")
+	userIdStr, _ := dataFileExample("UserId.txt")
 	userIdInt, _ := strconv.Atoi(userIdStr)
-	UserLoginStr, _ := dataFile("UserLogin.txt")
-	UserPasswordStr, _ := dataFile("UserPassword.txt")
+	UserLoginStr, _ := dataFileExample("UserLogin.txt")
+	UserPasswordStr, _ := dataFileExample("UserPassword.txt")
 
-	user := avtotoGo.User{UserId: userIdInt, UserLogin: UserLoginStr, UserPassword: UserPasswordStr} // Объявление пользователя
+	user := avtoto.User{UserId: userIdInt, UserLogin: UserLoginStr, UserPassword: UserPasswordStr} // Объявление пользователя
 
 	mySearchCode := "N007603010406" // Тестовый артикул для поиска
 
 	// ************************** GetBrandsByCode ************************** Поиск бренда по артиклу
 	// Создаём структуру запроса бренда по заданному артиклу
-	myBrand := avtotoGo.GetBrandsByCodeRequest{SearchCode: mySearchCode}
+	myBrand := avtoto.GetBrandsByCodeRequest{SearchCode: mySearchCode}
 	// Получаем с сервера список брендов
 	dataGetBrandsByCode, errorSearch := user.GetBrandsByCode(myBrand)
 	if errorSearch != nil {
@@ -35,7 +35,7 @@ func Search() {
 
 	// ************************** SearchStart ************************** Запуск поиска и получение кода ProcessSearchID
 	// Объявление запроса метода SearchStart
-	searchStartReq := avtotoGo.SearchStartRequest{SearchCode: mySearchCode, SearchCross: "on", Brand: dataGetBrandsByCode.Brands[0].Manuf}
+	searchStartReq := avtoto.SearchStartRequest{SearchCode: mySearchCode, SearchCross: "on", Brand: dataGetBrandsByCode.Brands[0].Manuf}
 	// Вызов метода SearchStartRequest с запросом
 	datasSearchStartRequest, errorSearch := user.SearchStartRequest(searchStartReq)
 	if errorSearch != nil {
@@ -52,7 +52,7 @@ func Search() {
 
 	time.Sleep(1 * time.Second) // Задержка, чтобы сервис нашёл данные на сервере
 	// Ответ сервера на запрос
-	var SearchGetParts2Res avtotoGo.SearchGetParts2Response
+	var SearchGetParts2Res avtoto.SearchGetParts2Response
 	for { // В цикле опрашиваем по методу SearchGetParts2 с переданным параметром ProcessSearchID
 		// Вызов метода SearchGetParts2
 		SearchGetParts2Res, errorSearch = SearchGetParts2Req.SearchGetParts2()
@@ -85,7 +85,7 @@ func Search() {
 		"\nSearchID", SearchGetParts2Res.Info.SearchID.Value())
 
 	// ************************** AddToBasket ************************** Добавление товара в корзину
-	basketItems := make([]avtotoGo.AddToBasketRequest, 1)
+	basketItems := make([]avtoto.AddToBasketRequest, 1)
 	basketItem, errorBasketItem := SearchGetParts2Res.SearchResInBasketReq(0)
 	if errorBasketItem != nil {
 		fmt.Println(errorBasketItem)
@@ -104,7 +104,7 @@ func Search() {
 	fmt.Println("> Метод AddToBasket добавил в корзину товар с RemoteID", basketRemoteID, "и InnerID", basketInnerID)
 
 	// ************************** UpdateCountInBasket ************************** Обновление количества товара в корзине
-	basketItemsUpdates := make([]avtotoGo.UpdateCountInBasketRequest, 1)
+	basketItemsUpdates := make([]avtoto.UpdateCountInBasketRequest, 1)
 	basketItemsUpdate, errorBasketItemUpdate := AddToBasketRes.BasketResInUpdateReq(0)
 	if errorBasketItemUpdate != nil {
 		fmt.Println(errorBasketItemUpdate)
@@ -119,7 +119,7 @@ func Search() {
 	fmt.Println("> Метод UpdateCountinBasketRes выполнился верно для объектов в корзине с RemoteID", UpdateCountinBasketRes.Done)
 
 	// ************************** CheckAvailabilityInBasket ************************** Получить информацию по товару из корзины
-	basketChecks := make([]avtotoGo.CheckAvailabilityInBasketRequest, 1)
+	basketChecks := make([]avtoto.CheckAvailabilityInBasketRequest, 1)
 	basketCheck, errorbasketChecks := AddToBasketRes.BasketResInCheckReq(0)
 	if errorbasketChecks != nil {
 		fmt.Println(errorbasketChecks)
@@ -138,7 +138,7 @@ func Search() {
 
 	/*
 		// ************************** AddToOrdersFromBasket ************************** Добавить запчасть из корзины в заказы
-		orderBaskets := make([]avtotoGo.AddToOrdersFromBasketRequest, 1)
+		orderBaskets := make([]avtoto.AddToOrdersFromBasketRequest, 1)
 		orderBasket, errorbasketChecks := AddToBasketRes.BasketResInOrdersReq(0)
 		if errorbasketChecks != nil {
 			fmt.Println(errorbasketChecks)
@@ -154,7 +154,7 @@ func Search() {
 
 	/*
 		// ************************** GetOrdersStatus ************************** Статус заказа
-		orderStatusGets := make([]avtotoGo.GetOrdersStatusRequest, 1)
+		orderStatusGets := make([]avtoto.GetOrdersStatusRequest, 1)
 		orderStatusGet, errorbasketChecks := AddToBasketRes.BasketResInOrdersStatusReq(0)
 		if errorbasketChecks != nil {
 			fmt.Println(errorbasketChecks)
@@ -173,7 +173,7 @@ func Search() {
 	*/
 
 	// ************************** DeleteFromBasket ************************** Удалить товар из корзины
-	basketItemsDeletes := make([]avtotoGo.DeleteFromBasketRequest, 1)
+	basketItemsDeletes := make([]avtoto.DeleteFromBasketRequest, 1)
 	basketItemsDelete, errorBasketItemDelete := AddToBasketRes.BasketResInDeleteReq(0)
 	if errorBasketItemDelete != nil {
 		fmt.Println(errorBasketItemDelete)
@@ -196,7 +196,7 @@ func Search() {
 		"было", statSearch.BrandsStatInfo.SearchCount, "запроса(ов)")
 
 	// ************************** GetShippingList ************************** получение списка отгрузок.
-	GetShippingListReq := avtotoGo.GetShippingListRequest{}
+	GetShippingListReq := avtoto.GetShippingListRequest{}
 	ShippingList, ShippingListError := user.GetShippingList(GetShippingListReq)
 	if ShippingListError != nil {
 		fmt.Println(ShippingListError)
@@ -205,9 +205,9 @@ func Search() {
 }
 
 // Получение значение из файла
-func dataFile(filename string) (string, error) {
+func dataFileExample(filename string) (string, error) {
 	// Открыть файл
-	fileToken, errorToken := os.Open(filename)
+	fileToken, errorToken := os.Open("example/" + filename)
 	if errorToken != nil {
 		return "", errorToken
 	}
