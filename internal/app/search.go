@@ -191,17 +191,16 @@ func Search() {
 	}
 	fmt.Println("> Метод DeleteFromBasketRes выполнился со статусом", DeleteFromBasketRes.Done)
 
-	// ************************** GetStatSearch ************************** статистики проценок по всем объединенным регистрациям.
+	// ************************** GetStatSearch ************************** статистика проценок по всем объединенным регистрациям.
 	statSearch, statSearchError := user.GetStatSearch()
 	if statSearchError != nil {
 		fmt.Println(statSearchError)
 	}
-	//fmt.Println(statSearch)
-	fmt.Println()
-	fmt.Println("statSearch.StatInfo.StatDateStart", statSearch.StatInfo.StatDateStart)
-	fmt.Println("statSearch.BrandsStatInfo.StatDateEnd", statSearch.BrandsStatInfo.StatDateEnd)
 
-	fmt.Println("statSearch.StatInfo.StatDateStartStamp.String()", statSearch.StatInfo.StatDateStartStamp.String())
+	fmt.Println("> Метод StatSearch вернул информацию о запросах брендов по коду от", statSearch.BrandsStatInfo.StatDateStart.String(), "до", statSearch.BrandsStatInfo.StatDateEndStamp.String(),
+		"\nКоличество запросов = ", statSearch.BrandsStatInfo.SearchCount)
+
+	// ************************** GetShippingList ************************** получение списка отгрузок.
 
 }
 
