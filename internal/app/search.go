@@ -198,10 +198,15 @@ func Search() {
 	}
 
 	fmt.Println("> Метод StatSearch вернул информацию о запросах брендов по коду от", statSearch.BrandsStatInfo.StatDateStart.String(), "до", statSearch.BrandsStatInfo.StatDateEndStamp.String(),
-		"\nКоличество запросов = ", statSearch.BrandsStatInfo.SearchCount)
+		"было", statSearch.BrandsStatInfo.SearchCount, "запроса(ов)")
 
 	// ************************** GetShippingList ************************** получение списка отгрузок.
-
+	GetShippingListReq := avtotoGo.GetShippingListRequest{}
+	ShippingList, ShippingListError := user.GetShippingList(GetShippingListReq)
+	if ShippingListError != nil {
+		fmt.Println(ShippingListError)
+	}
+	fmt.Println("> Метод GetShippingList -", ShippingList.Error())
 }
 
 // Получение значение из файла

@@ -23,6 +23,11 @@ func (t *Date) UnmarshalJSON(s []byte) error {
 	return errorTime
 }
 
+// MarshalJSON is used to convert the timestamp to JSON
+func (t Date) MarshalJSON() ([]byte, error) {
+	return []byte(t.timeDateValue.Format("02.01.2006")), nil
+}
+
 // Вернуть дату в формате string в одной строке
 func (t Date) String() string {
 	return t.Day() + "." + t.Month() + "." + t.Year() + " " + t.Hour() + ":" + t.Minute() // Время

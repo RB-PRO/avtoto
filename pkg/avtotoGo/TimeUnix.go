@@ -1,7 +1,6 @@
 package avtotoGo
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -24,7 +23,6 @@ type TimeUnix struct {
 // UnmarshalJSON is used to convert the timestamp from JSON
 func (t *TimeUnix) UnmarshalJSON(s []byte) (err error) {
 	r := strings.ReplaceAll(string(s), "\"", "")
-	fmt.Println("r ->", r)
 	q, err := strconv.ParseInt(r, 10, 64)
 	if err != nil {
 		return err

@@ -4,7 +4,6 @@ package avtotoGo
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 type GetStatSearchResponse struct {
@@ -62,8 +61,6 @@ func (user User) GetStatSearch() (GetStatSearchResponse, error) {
 	if responseError != nil {
 		return GetStatSearchResponse{}, responseError
 	}
-
-	fmt.Println(string(body))
 
 	// Распарсить данные
 	responseError = GetStatSearchRes.GetStatSearch_UnmarshalJson(body)
