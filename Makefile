@@ -14,3 +14,6 @@ pushW:
 
 pullW:
 	git pull https://github.com/RB-PRO/avtoto.git
+
+doc:
+	godoc -http :8080
