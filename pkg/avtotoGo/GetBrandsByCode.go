@@ -35,10 +35,6 @@ func (GetBrandsByCodeRes GetBrandsByCodeResponse) LenParts() int {
 	return len(GetBrandsByCodeRes.Brands)
 }
 
-/* -------------------------------------------- */
-/* ----**** JSON/http method functions ****---- */
-/* -------------------------------------------- */
-
 // Получить данные по методу GetBrandsByCode
 func (user User) GetBrandsByCode(GetBrandsByCodeReq GetBrandsByCodeRequest) (GetBrandsByCodeResponse, error) {
 	GetBrandsByCodeReq.UserId = user.UserId
@@ -61,31 +57,16 @@ func (user User) GetBrandsByCode(GetBrandsByCodeReq GetBrandsByCodeRequest) (Get
 	}
 
 	// Распарсить данные
-	responseError = GetBrandsByCodeRes.UnmarshalJSON(body)
-	if responseError != nil {
-		return GetBrandsByCodeResponse{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &GetBrandsByCodeRes)
+	if responseErrorUnmarshal != nil {
+		return GetBrandsByCodeResponse{}, responseErrorUnmarshal
 	}
 
 	return GetBrandsByCodeRes, responseError
 }
 
-// Метод для SearchStartResponse, который преобразует приходящий ответ в структуру
-
-func (responseGetBrandsByCode *GetBrandsByCodeResponse) UnmarshalJSON(body []byte) error {
-	//func (responseGetBrandsByCode *GetBrandsByCodeResponse) GetBrandsByCode_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &responseGetBrandsByCode)
-	if responseError != nil {
-		return responseError
-	}
-
-	//if len(responseGetBrandsByCode.Info.Errors) != 0 {
-	//	return errors.New(responseGetBrandsByCode.Info.Errors[0])
-	//}
-	return nil
-}
-
 // Получить ошибку из ответа метода GetBrandsByCode
-func (GetBrandsByCodeRes GetBrandsByCodeResponse) ErrorString() string {
+func (GetBrandsByCodeRes GetBrandsByCodeResponse) Error() string {
 	if len(GetBrandsByCodeRes.Info.Errors) == 0 {
 		return ""
 	} else {

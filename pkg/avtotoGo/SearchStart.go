@@ -69,43 +69,31 @@ func (user User) SearchStartRequest(searchStartReq SearchStartRequest) (SearchSt
 	searchStartReq.UserPassword = user.UserPassword
 
 	// Ответ от сервера
-	var responseSearchStart SearchStartResponse
+	var SearchStartRes SearchStartResponse
 
 	// Подготовить данные для загрузки
 	bytesRepresentation, responseError := json.Marshal(searchStartReq)
 	if responseError != nil {
-		return responseSearchStart, responseError
+		return SearchStartResponse{}, responseError
 	}
 
 	// Выполнить запрос
 	body, responseError := HttpPost(bytesRepresentation, "SearchStart")
 	if responseError != nil {
-		return responseSearchStart, responseError
+		return SearchStartResponse{}, responseError
 	}
 
 	// Распарсить данные
-	responseError = responseSearchStart.searchStart_UnmarshalJson(body)
-	if responseError != nil {
-		return responseSearchStart, responseError
-	}
-	return responseSearchStart, responseError
-}
-
-// Метод для SearchStartResponse, который преобразует приходящий ответ в структуру
-func (responseSearchStart *SearchStartResponse) searchStart_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &responseSearchStart)
-	if responseError != nil {
-		return responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &SearchStartRes)
+	if responseErrorUnmarshal != nil {
+		return SearchStartResponse{}, responseErrorUnmarshal
 	}
 
-	//if len(responseSearchStart.Info.Errors) != 0 {
-	//	return errors.New(responseSearchStart.Info.Errors[0])
-	//}
-	return nil
+	return SearchStartRes, responseError
 }
 
 // Получить ошибку из ответа метода SearchStart
-func (SearchStartRes SearchStartResponse) ErrorString() string {
+func (SearchStartRes SearchStartResponse) Error() string {
 	if len(SearchStartRes.Info.Errors) == 0 {
 		return ""
 	} else {

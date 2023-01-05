@@ -4,7 +4,6 @@ package avtotoGo
 
 import (
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -59,26 +58,18 @@ func (user User) AddToOrdersFromBasket(AddToOrdersFromBasketReq []AddToOrdersFro
 	if responseError != nil {
 		return AddToOrdersFromBasketResponse{}, responseError
 	}
-	fmt.Println(string(body))
+
 	// Распарсить данные
-	responseError = AddToOrdersFromBasketRes.AddToOrdersFromBasket_UnmarshalJson(body)
-	if responseError != nil {
-		return AddToOrdersFromBasketResponse{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &AddToOrdersFromBasketRes)
+	if responseErrorUnmarshal != nil {
+		return AddToOrdersFromBasketResponse{}, responseErrorUnmarshal
 	}
+
 	return AddToOrdersFromBasketRes, nil
 }
 
-// Метод для AddToOrdersFromBasket, который преобразует приходящий ответ в структуру
-func (AddToOrdersFromBasketRes *AddToOrdersFromBasketResponse) AddToOrdersFromBasket_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &AddToOrdersFromBasketRes)
-	if responseError != nil {
-		return responseError
-	}
-	return nil
-}
-
 // Получить ошибку из ответа метода AddToOrdersFromBasket
-func (AddToOrdersFromBasketRes AddToOrdersFromBasketResponse) ErrorString() string {
+func (AddToOrdersFromBasketRes AddToOrdersFromBasketResponse) Error() string {
 	if len(AddToOrdersFromBasketRes.Errors) == 0 {
 		return ""
 	} else {

@@ -59,24 +59,16 @@ func (user User) UpdateCountInBasket(UpdateCountInBasketReq []UpdateCountInBaske
 	}
 
 	// Распарсить данные
-	responseError = UpdateCountInBasketRes.updateCountInBasket_UnmarshalJson(body)
-	if responseError != nil {
-		return UpdateCountInBasketResponse{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &UpdateCountInBasketRes)
+	if responseErrorUnmarshal != nil {
+		return UpdateCountInBasketResponse{}, responseErrorUnmarshal
 	}
+
 	return UpdateCountInBasketRes, nil
 }
 
-// Метод для UpdateCountInBasket, который преобразует приходящий ответ в структуру
-func (UpdateCountInBasketRes *UpdateCountInBasketResponse) updateCountInBasket_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &UpdateCountInBasketRes)
-	if responseError != nil {
-		return responseError
-	}
-	return nil
-}
-
 // Получить ошибку из ответа метода UpdateCountInBasket
-func (UpdateCountInBasketRes UpdateCountInBasketResponse) ErrorString() string {
+func (UpdateCountInBasketRes UpdateCountInBasketResponse) Error() string {
 	if len(UpdateCountInBasketRes.Errors) == 0 {
 		return ""
 	} else {

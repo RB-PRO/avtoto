@@ -60,7 +60,7 @@ func Search() {
 			log.Fatal(errorSearch)
 		}
 
-		if SearchGetParts2Res.ErrorString() != "Запрос в обработке" {
+		if SearchGetParts2Res.Error() != "Запрос в обработке" {
 			break
 		} else {
 			fmt.Println("Запрос в обработке. Ждём 1 секунду и заново опрашиваешь по методу SearchGetParts2")

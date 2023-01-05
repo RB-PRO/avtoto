@@ -62,24 +62,16 @@ func (user User) GetOrdersStatus(GetOrdersStatusReq []GetOrdersStatusRequest) (G
 	}
 
 	// Распарсить данные
-	responseError = GetOrdersStatusRes.GetOrdersStatus_UnmarshalJson(body)
-	if responseError != nil {
-		return GetOrdersStatusResponse{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &GetOrdersStatusRes)
+	if responseErrorUnmarshal != nil {
+		return GetOrdersStatusResponse{}, responseErrorUnmarshal
 	}
+
 	return GetOrdersStatusRes, nil
 }
 
-// Метод для GetOrdersStatus, который преобразует приходящий ответ в структуру
-func (GetOrdersStatusRes *GetOrdersStatusResponse) GetOrdersStatus_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &GetOrdersStatusRes)
-	if responseError != nil {
-		return responseError
-	}
-	return nil
-}
-
 // Получить ошибку из ответа метода GetOrdersStatus
-func (GetOrdersStatusRes GetOrdersStatusResponse) ErrorString() string {
+func (GetOrdersStatusRes GetOrdersStatusResponse) Error() string {
 	if len(GetOrdersStatusRes.Errors) == 0 {
 		return ""
 	} else {

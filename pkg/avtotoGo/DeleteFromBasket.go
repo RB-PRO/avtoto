@@ -57,24 +57,16 @@ func (user User) DeleteFromBasket(DeleteFromBasketReq []DeleteFromBasketRequest)
 	}
 
 	// Распарсить данные
-	responseError = DeleteFromBasketRes.DeleteFromBasket_UnmarshalJson(body)
-	if responseError != nil {
-		return DeleteFromBasketResponse{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &DeleteFromBasketRes)
+	if responseErrorUnmarshal != nil {
+		return DeleteFromBasketResponse{}, responseErrorUnmarshal
 	}
+
 	return DeleteFromBasketRes, nil
 }
 
-// Метод для DeleteFromBasket, который преобразует приходящий ответ в структуру
-func (DeleteFromBasketRes *DeleteFromBasketResponse) DeleteFromBasket_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &DeleteFromBasketRes)
-	if responseError != nil {
-		return responseError
-	}
-	return nil
-}
-
 // Получить ошибку из ответа метода DeleteFromBasket
-func (DeleteFromBasketRes DeleteFromBasketResponse) ErrorString() string {
+func (DeleteFromBasketRes DeleteFromBasketResponse) Error() string {
 	if len(DeleteFromBasketRes.Errors) == 0 {
 		return ""
 	} else {

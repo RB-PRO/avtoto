@@ -63,18 +63,19 @@ func (user User) GetStatSearch() (GetStatSearchResponse, error) {
 	}
 
 	// Распарсить данные
-	responseError = GetStatSearchRes.GetStatSearch_UnmarshalJson(body)
-	if responseError != nil {
-		return GetStatSearchResponse{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &GetStatSearchRes)
+	if responseErrorUnmarshal != nil {
+		return GetStatSearchResponse{}, responseErrorUnmarshal
 	}
+
 	return GetStatSearchRes, nil
 }
 
-// Метод для GetStatSearch, который преобразует приходящий ответ в структуру
-func (GetStatSearchRes *GetStatSearchResponse) GetStatSearch_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &GetStatSearchRes)
-	if responseError != nil {
-		return responseError
+// Получить ошибку из ответа метода GetStatSearch
+func (GetStatSearchRes GetStatSearchResponse) Error() string {
+	if len(GetStatSearchRes.Errors) == 0 {
+		return ""
+	} else {
+		return GetStatSearchRes.Errors[0]
 	}
-	return nil
 }

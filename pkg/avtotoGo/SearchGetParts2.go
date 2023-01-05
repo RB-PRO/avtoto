@@ -139,25 +139,12 @@ func (SearchGetParts2Req SearchGetParts2Request) SearchGetParts2() (SearchGetPar
 	}
 
 	// Распарсить данные
-	responseError = SearchGetParts2Res.searchGetParts2_UnmarshalJson(body)
-	if responseError != nil {
-		return SearchGetParts2Response{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &SearchGetParts2Res)
+	if responseErrorUnmarshal != nil {
+		return SearchGetParts2Response{}, responseErrorUnmarshal
 	}
 
 	return SearchGetParts2Res, responseError
-}
-
-// Метод для SearchGetParts2, который преобразует приходящий ответ в структуру
-func (responseSearchGetParts2 *SearchGetParts2Response) searchGetParts2_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &responseSearchGetParts2)
-	if responseError != nil {
-		return responseError
-	}
-
-	//if len(responseSearchGetParts2.Info.Errors) != 0 {
-	//	return errors.New(responseSearchGetParts2.Info.Errors[0])
-	//}
-	return nil
 }
 
 // Получить статус запроса по методу SearchGetParts2
@@ -179,7 +166,7 @@ func (SearchGetParts2Res SearchGetParts2Response) Status() string {
 }
 
 // Получить ошибку из ответа метода SearchGetParts2
-func (SearchGetParts2Res SearchGetParts2Response) ErrorString() string {
+func (SearchGetParts2Res SearchGetParts2Response) Error() string {
 	if len(SearchGetParts2Res.Info.Errors) == 0 {
 		return ""
 	} else {

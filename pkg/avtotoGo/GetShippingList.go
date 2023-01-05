@@ -67,20 +67,12 @@ func (user User) GetShippingList(GetShippingListReq GetShippingListRequest) (Get
 	}
 
 	// Распарсить данные
-	responseError = GetShippingListRes.GetShippingList_UnmarshalJson(body)
-	if responseError != nil {
-		return GetShippingListResponse{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &GetShippingListRes)
+	if responseErrorUnmarshal != nil {
+		return GetShippingListResponse{}, responseErrorUnmarshal
 	}
-	return GetShippingListRes, nil
-}
 
-// Метод для GetShippingList, который преобразует приходящий ответ в структуру
-func (GetShippingListRes *GetShippingListResponse) GetShippingList_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &GetShippingListRes)
-	if responseError != nil {
-		return responseError
-	}
-	return nil
+	return GetShippingListRes, nil
 }
 
 // Получить Количество отгрузок из ответа метода GetShippingList

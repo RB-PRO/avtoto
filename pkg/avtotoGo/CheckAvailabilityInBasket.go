@@ -62,24 +62,16 @@ func (user User) CheckAvailabilityInBasket(CheckAvailabilityInBasketReq []CheckA
 	}
 
 	// Распарсить данные
-	responseError = CheckAvailabilityInBasketRes.CheckAvailabilityInBasket_UnmarshalJson(body)
-	if responseError != nil {
-		return CheckAvailabilityInBasketResponse{}, responseError
+	responseErrorUnmarshal := json.Unmarshal(body, &CheckAvailabilityInBasketRes)
+	if responseErrorUnmarshal != nil {
+		return CheckAvailabilityInBasketResponse{}, responseErrorUnmarshal
 	}
+
 	return CheckAvailabilityInBasketRes, nil
 }
 
-// Метод для CheckAvailabilityInBasket, который преобразует приходящий ответ в структуру
-func (CheckAvailabilityInBasketRes *CheckAvailabilityInBasketResponse) CheckAvailabilityInBasket_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &CheckAvailabilityInBasketRes)
-	if responseError != nil {
-		return responseError
-	}
-	return nil
-}
-
 // Получить ошибку из ответа метода CheckAvailabilityInBasket
-func (CheckAvailabilityInBasketRes CheckAvailabilityInBasketResponse) ErrorString() string {
+func (CheckAvailabilityInBasketRes CheckAvailabilityInBasketResponse) Error() string {
 	if len(CheckAvailabilityInBasketRes.Errors) == 0 {
 		return ""
 	} else {

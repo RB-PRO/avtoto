@@ -126,31 +126,17 @@ func (user User) AddToBasket(AddToBasketReq []AddToBasketRequest) (AddToBasketRe
 		return AddToBasketResponse{}, responseError
 	}
 
-	//fmt.Println(string(body))
-
-	//Распарсить данные
-	responseError = AddToBasketRes.addToBasket_UnmarshalJson(body)
-	if responseError != nil {
-		return AddToBasketResponse{}, responseError
+	// Распарсить данные
+	responseErrorUnmarshal := json.Unmarshal(body, &AddToBasketRes)
+	if responseErrorUnmarshal != nil {
+		return AddToBasketResponse{}, responseErrorUnmarshal
 	}
+
 	return AddToBasketRes, nil
 }
 
-// Метод для SearchGetParts2, который преобразует приходящий ответ в структуру
-func (responseAddToBasket *AddToBasketResponse) addToBasket_UnmarshalJson(body []byte) error {
-	responseError := json.Unmarshal(body, &responseAddToBasket)
-	if responseError != nil {
-		return responseError
-	}
-
-	//if len(responseAddToBasket.Info.Errors) != 0 {
-	//	return errors.New(responseAddToBasket.Info.Errors[0])
-	//}
-	return nil
-}
-
 // Получить ошибку из ответа метода AddToBasket
-func (AddToBasketRes AddToBasketResponse) ErrorString() string {
+func (AddToBasketRes AddToBasketResponse) Error() string {
 	if len(AddToBasketRes.Errors) == 0 {
 		return ""
 	} else {
