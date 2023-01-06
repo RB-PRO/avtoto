@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	avtoto "github.com/rb-pro/avtoto"
+	"github.com/rb-pro/avtoto"
 )
 
 func main() {

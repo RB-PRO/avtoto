@@ -35,7 +35,7 @@
 // [общая информация]: https://www.avtoto.ru/#settings:all
 // [данной документации]: https://pkg.go.dev/github.com/rb-pro/avtoto
 // [документации поставщиков API]: https://www.avtoto.ru/services/search/docs/technical_soap.html#curl
-package avtotoGo
+package avtoto
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package avtotoGo
+package avtoto
 
 import (
 	"strconv"
