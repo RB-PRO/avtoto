@@ -10,7 +10,7 @@
 
 ## Установка
 
-```golang
+```sh
 go get github.com/rb-pro/avtoto
 ```
 
