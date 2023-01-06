@@ -1,3 +1,3 @@
-module github.com/rb-pro/avtoto
+module github.com/RB-PRO/avtoto
 
 go 1.19
