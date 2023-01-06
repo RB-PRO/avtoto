@@ -1,13 +1,17 @@
 package avtotoGo
 
-// Метод GetStatSearch предназначен для получения статистики проценок по всем объединенным регистрациям.
-
 import (
 	"encoding/json"
 )
 
+// Метод [GetStatSearch] предназначен для получения статистики проценок по всем объединенным регистрациям.
+// Информаци о проценках - индексированный массив с упорядоченными целочисленными ключами, начиная с 0
+//
+// # Структура ответа метода GetStatSearch
+//
+// [GetStatSearch]: https://www.avtoto.ru/services/search/docs/technical_soap.html#GetStatSearch
 type GetStatSearchResponse struct {
-	StatInfo struct { // Информаци о проценках - индексированный массив с упорядоченными целочисленными ключами, начиная с 0
+	StatInfo struct {
 		SearchCount   int  `json:"SearchCount"`   // Количество проценок за определенный период
 		SearchEnabled bool `json:"SearchEnabled"` // Доступность использования проценки (true - доступно, false - недоступно)
 		MaxCount      bool `json:"MaxCount"`      // лимит проценок
@@ -45,6 +49,11 @@ type GetStatSearchResponse struct {
 }
 
 // Получить данные по методу GetStatSearch
+//
+//	statSearch, statSearchError := user.GetStatSearch()
+//	if statSearchError != nil {
+//		fmt.Println(statSearchError)
+//	}
 func (user User) GetStatSearch() (GetStatSearchResponse, error) {
 
 	// Ответ от сервера
@@ -57,7 +66,7 @@ func (user User) GetStatSearch() (GetStatSearchResponse, error) {
 	}
 
 	// Отправить данные
-	body, responseError := HttpPost(bytesRepresentation, "GetStatSearch")
+	body, responseError := httpPost(bytesRepresentation, "GetStatSearch")
 	if responseError != nil {
 		return GetStatSearchResponse{}, responseError
 	}

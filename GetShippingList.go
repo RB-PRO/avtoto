@@ -4,20 +4,31 @@ import (
 	"encoding/json"
 )
 
-// Метод GetShippingList предназначен для получения статистики проценок по всем объединенным регистрациям.
-
-// Тело запроса GetShippingList
+// Метод [GetShippingList] предназначен для получения статистики проценок по всем объединенным регистрациям
+// Полная структура запроса метода GetShippingList скрыта от разработчика.
+//
+// [GetShippingList]: https://www.avtoto.ru/services/search/docs/technical_soap.html#GetShippingList
 type GetShippingListRequestData struct {
 	User User `json:"user"` // Данные пользователя для авторизации (тип: ассоциативный массив)
 	data GetShippingListRequest
 }
+
+// Метод [GetShippingList] предназначен для получения статистики проценок по всем объединенным регистрациям
+//
+// # Структура запроса метода GetShippingList
+//
+// [GetShippingList]: https://www.avtoto.ru/services/search/docs/technical_soap.html#GetShippingList
 type GetShippingListRequest struct {
 	From    Date `json:"from,omitempty"`     // дата начала выборки (ДД.ММ.ГГГГ) (опционально) (тип: строка)
 	To      Date `json:"to,omitempty"`       // дата окончания выборки (ДД.ММ.ГГГГ) (опционально) (тип: строка)
 	PageNum int  `json:"page_num,omitempty"` // номер страницы (опционально) (тип: целое)
 }
 
-// Тело ответа GetShippingList
+// Метод [GetShippingList] предназначен для получения статистики проценок по всем объединенным регистрациям
+//
+// # Структура ответа метода GetShippingList
+//
+// [GetShippingList]: https://www.avtoto.ru/services/search/docs/technical_soap.html#GetShippingList
 type GetShippingListResponse struct {
 	Shippings []struct { // Список отгрузок - индексированный массив с упорядоченными целочисленными ключами, начиная с 0
 		Id     int        `json:"Id"`   // ID отгрузки
@@ -48,6 +59,12 @@ type GetShippingListResponse struct {
 }
 
 // Получить данные по методу GetShippingList
+//
+//	GetShippingListReq := avtoto.GetShippingListRequest{}
+//	ShippingList, ShippingListError := user.GetShippingList(GetShippingListReq)
+//	if ShippingListError != nil {
+//		fmt.Println(ShippingListError)
+//	}
 func (user User) GetShippingList(GetShippingListReq GetShippingListRequest) (GetShippingListResponse, error) {
 	GetShippingListData := GetShippingListRequestData{User: user, data: GetShippingListReq}
 
@@ -61,7 +78,7 @@ func (user User) GetShippingList(GetShippingListReq GetShippingListRequest) (Get
 	}
 
 	// Отправить данные
-	body, responseError := HttpPost(bytesRepresentation, "GetShippingList")
+	body, responseError := httpPost(bytesRepresentation, "GetShippingList")
 	if responseError != nil {
 		return GetShippingListResponse{}, responseError
 	}

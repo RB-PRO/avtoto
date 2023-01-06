@@ -1,21 +1,20 @@
 package avtotoGo
 
-// Метод SearchStart предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа.
-
-/*
-Методы SearchStart и SearchGetParts позволяют организовать асинхронную передачу данных, помогая снизить нагрузку на Ваш и на наш сервер.
-
-Метод SearchStart выдает идентификатор процесса поиска на сервере AvtoTO. Потом нужно отслеживать, не появился ли ответ с помощью метода SearchGetParts.
-Эта схема работы реализуется на Ajax: первый запрос запускает метод SearchStart, по его окончанию вызывается функция, которая с небольшим периодом (0.3 - 0.5 сек) проверяет наличие ответа.
-Когда ответ появился, она его выдает.
-*/
-
 import (
 	"encoding/json"
 	"errors"
 )
 
-// Структура запроса метода SearchStart
+// Метод [SearchStart] предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO
+// Расширенная версия, выдает статус ответа
+// Метод SearchStart выдает идентификатор процесса поиска на сервере AvtoTO. Потом нужно отслеживать, не появился ли ответ с помощью метода SearchGetParts.
+// Эта схема работы реализуется на Ajax: первый запрос запускает метод SearchStart, по его окончанию вызывается функция, которая с небольшим периодом (0.3 - 0.5 сек) проверяет наличие ответа.
+// Когда ответ появился, она его выдает.
+//
+// # Структура запроса метода SearchStart
+//
+// [SearchStart]: https://www.avtoto.ru/services/search/docs/technical_soap.html#SearchStart
+
 type SearchStartRequest struct {
 	UserId       int    `json:"user_id"`         // [*] Уникальный идентификатор пользователя (номер клиента) (тип: целое)
 	UserLogin    string `json:"user_login"`      // [*] Логин пользователя (тип: строка)
@@ -28,7 +27,11 @@ type SearchStartRequest struct {
 	// Примечание: если бренд не указан, будет автоматически выбран самый популярный и произведен поиск с учетом этого бренда.
 }
 
-// Структура ответа метода SearchStart
+// Метод [SearchStart] предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO
+//
+// # Структура ответа метода SearchStart
+//
+// [SearchStart]: https://www.avtoto.ru/services/search/docs/technical_soap.html#SearchStart
 type SearchStartResponse struct {
 	ProcessSearchID string `json:"ProcessSearchId"` // идентификатор процесса поиска (тип: строка). Необходим для отслеживания результатов процесса поиска.
 	Info            struct {
@@ -40,16 +43,9 @@ type SearchStartResponse struct {
 
 // Преобразование ответа в запрос. SearchStartResponse > SearchGetParts2Request
 func (searchStartRes SearchStartResponse) SearchResInReq() (SearchGetParts2Request, error) {
-	//// Проверка на Error в структуре ответа
-	//if len(searchStartRes.Info.Errors) != 0 {
-	//	return SearchGetParts2Request{}, errors.New(searchStartRes.Info.Errors[0])
-	//}
-
-	// Проверка существование ProcessSearchID
-	if searchStartRes.ProcessSearchID == "" {
+	if searchStartRes.ProcessSearchID == "" { // Проверка существования ProcessSearchID
 		return SearchGetParts2Request{}, errors.New("ProcessSearchID is nil")
 	}
-
 	return SearchGetParts2Request{ProcessSearchId: searchStartRes.ProcessSearchID}, nil
 }
 
@@ -58,11 +54,14 @@ func (searchStartRes SearchStartResponse) ProcessSearchCode() string {
 	return searchStartRes.ProcessSearchID
 }
 
-/* -------------------------------------------- */
-/* ----**** JSON/http method functions ****---- */
-/* -------------------------------------------- */
-
-// Получить данные по методу SearchStartRequest
+// Получить данные по методу SearchStart
+//
+//	searchStartReq := avtoto.SearchStartRequest{SearchCode: mySearchCode, SearchCross: "on", Brand: dataGetBrandsByCode.Brands[0].Manuf}// Объявление запроса метода SearchStart
+//	datasSearchStartRequest, errorSearch := user.SearchStartRequest(searchStartReq)// Вызов метода SearchStartRequest с запросом
+//	if errorSearch != nil {
+//		log.Fatal(errorSearch)
+//	}
+//	fmt.Println("> Полученный ProcessSearchID", datasSearchStartRequest.ProcessSearchID)
 func (user User) SearchStartRequest(searchStartReq SearchStartRequest) (SearchStartResponse, error) {
 	searchStartReq.UserId = user.UserId
 	searchStartReq.UserLogin = user.UserLogin
@@ -78,7 +77,7 @@ func (user User) SearchStartRequest(searchStartReq SearchStartRequest) (SearchSt
 	}
 
 	// Выполнить запрос
-	body, responseError := HttpPost(bytesRepresentation, "SearchStart")
+	body, responseError := httpPost(bytesRepresentation, "SearchStart")
 	if responseError != nil {
 		return SearchStartResponse{}, responseError
 	}

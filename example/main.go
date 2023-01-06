@@ -18,7 +18,11 @@ func main() {
 	UserLoginStr, _ := dataFileExample("UserLogin.txt")
 	UserPasswordStr, _ := dataFileExample("UserPassword.txt")
 
-	user := avtoto.User{UserId: userIdInt, UserLogin: UserLoginStr, UserPassword: UserPasswordStr} // Объявление пользователя
+	// Объявление пользователя
+	user := avtoto.User{
+		UserId:       userIdInt,
+		UserLogin:    UserLoginStr,
+		UserPassword: UserPasswordStr}
 
 	mySearchCode := "N007603010406" // Тестовый артикул для поиска
 
@@ -110,7 +114,7 @@ func main() {
 		fmt.Println(errorBasketItemUpdate)
 	}
 	basketItemsUpdates[0] = basketItemsUpdate
-	basketItemsUpdates[0].NewCount = 300
+	basketItemsUpdates[0].NewCount = 10
 
 	UpdateCountinBasketRes, errorBasketUpdate := user.UpdateCountInBasket(basketItemsUpdates)
 	if errorBasketUpdate != nil {
@@ -149,7 +153,7 @@ func main() {
 		if errorOrders != nil {
 			fmt.Println(errorOrders)
 		}
-		fmt.Println("> Метод AddToOrdersFromBasket.", AddToOrdersFromBasketRes)
+		fmt.Println("> Метод AddToOrdersFromBasket", AddToOrdersFromBasketRes)
 	*/
 
 	/*
@@ -165,6 +169,7 @@ func main() {
 		if errorOrdersStatus != nil {
 			fmt.Println(errorOrdersStatus)
 		}
+
 		orderStatus, orderStatusError := GetOrdersStatusRes.Status(0)
 		if orderStatusError != nil {
 			fmt.Println(orderStatusError)

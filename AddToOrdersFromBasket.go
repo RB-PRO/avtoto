@@ -1,27 +1,36 @@
 package avtotoGo
 
-// Метод AddToOrdersFromBasket добавляет запчасти в заказы из корзины Avtoto
-
 import (
 	"encoding/json"
 	"strconv"
 	"strings"
 )
 
-// Вся структура запроса метода AddToOrdersFromBasket
-type AddToOrdersFromBasketRequestData struct {
+// Метод [AddToOrdersFromBasket] добавляет запчасти в заказы из корзины Avtoto
+// Полная структура запроса метода AddToOrdersFromBasket скрыта от разработчика.
+//
+// [AddToOrdersFromBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#AddToOrdersFromBasket
+type addToOrdersFromBasketRequestData struct {
 	User  User                           `json:"user"`  // Данные пользователя для авторизации (тип: ассоциативный массив)
 	Parts []AddToOrdersFromBasketRequest `json:"parts"` // Список запчастей для удаления из корзины (тип: индексированный массив):
 }
 
-// Тело запроса AddToOrdersFromBasket
+// Метод [AddToOrdersFromBasket] добавляет запчасти в заказы из корзины Avtoto
+//
+// # Структура запроса метода AddToOrdersFromBasket
+//
+// [AddToOrdersFromBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#AddToOrdersFromBasket
 type AddToOrdersFromBasketRequest struct {
 	InnerID  int `json:"InnerID"`         // ID записи в корзине AvtoTO (тип: целое) — данные, сохраненные в результате добавления в корзину
 	RemoteID int `json:"RemoteID"`        // ID запчасти в Вашей системе (тип: целое)
 	Count    int `json:"Count,omitempty"` // Количество для добавления (необязательный параметр, тип: целое)
 }
 
-// Тело ответа AddToOrdersFromBasket
+// Метод [AddToOrdersFromBasket] добавляет запчасти в заказы из корзины Avtoto
+//
+// # Структура ответа метода AddToOrdersFromBasket
+//
+// [AddToOrdersFromBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#AddToOrdersFromBasket
 type AddToOrdersFromBasketResponse struct {
 	Done   []int      `json:"Done"` // Массив RemoteID успешно добавленных элементов
 	Errors []struct { // Массив ошибок:
@@ -41,8 +50,19 @@ type AddToOrdersFromBasketResponse struct {
 }
 
 // Получить данные по методу AddToOrdersFromBasket
+//
+//	orderBaskets := make([]avtoto.AddToOrdersFromBasketRequest, 1)
+//	orderBasket, errorbasketChecks := AddToBasketRes.BasketResInOrdersReq(0)
+//	if errorbasketChecks != nil {
+//		fmt.Println(errorbasketChecks)
+//	}
+//	orderBaskets[0] = orderBasket
+//	AddToOrdersFromBasketRes, errorOrders := user.AddToOrdersFromBasket(orderBaskets)
+//	if errorOrders != nil {
+//		fmt.Println(errorOrders)
+//	}
 func (user User) AddToOrdersFromBasket(AddToOrdersFromBasketReq []AddToOrdersFromBasketRequest) (AddToOrdersFromBasketResponse, error) {
-	AddToOrdersFromBasketData := AddToOrdersFromBasketRequestData{User: user, Parts: AddToOrdersFromBasketReq}
+	AddToOrdersFromBasketData := addToOrdersFromBasketRequestData{User: user, Parts: AddToOrdersFromBasketReq}
 
 	// Ответ от сервера
 	var AddToOrdersFromBasketRes AddToOrdersFromBasketResponse
@@ -54,7 +74,7 @@ func (user User) AddToOrdersFromBasket(AddToOrdersFromBasketReq []AddToOrdersFro
 	}
 
 	// Отправить данные
-	body, responseError := HttpPost(bytesRepresentation, "AddToOrdersFromBasket")
+	body, responseError := httpPost(bytesRepresentation, "AddToOrdersFromBasket")
 	if responseError != nil {
 		return AddToOrdersFromBasketResponse{}, responseError
 	}

@@ -1,7 +1,5 @@
 package avtotoGo
 
-// Метод GetOrdersStatus проверка статуса заказа в системе AvtoTO
-
 import (
 	"encoding/json"
 	"errors"
@@ -9,19 +7,30 @@ import (
 	"strings"
 )
 
-// Вся структура запроса метода GetOrdersStatus
+// Метод [GetOrdersStatus] предназначен для проверки статуса заказа в системе AvtoTO
+// Полная структура запроса метода GetOrdersStatus скрыта от разработчика.
+//
+// [GetOrdersStatus]: https://www.avtoto.ru/services/search/docs/technical_soap.html#GetOrdersStatus
 type GetOrdersStatusRequestData struct {
 	User  User                     `json:"user"`  // Данные пользователя для авторизации (тип: ассоциативный массив)
 	Parts []GetOrdersStatusRequest `json:"parts"` // Список запчастей для добавления в заказы (тип: индексированный массив)
 }
 
-// Тело запроса GetOrdersStatus
+// Метод [GetOrdersStatus] предназначен для проверки статуса заказа в системе AvtoTO
+//
+// # Структура запроса метода GetOrdersStatus
+//
+// [GetOrdersStatus]: https://www.avtoto.ru/services/search/docs/technical_soap.html#GetOrdersStatus
 type GetOrdersStatusRequest struct {
 	InnerID  int `json:"InnerID"`  // ID записи в корзине AvtoTO (тип: целое) — данные, сохраненные в результате добавления в корзину
 	RemoteID int `json:"RemoteID"` // ID запчасти в Вашей системе (тип: целое)
 }
 
-// Тело ответа GetOrdersStatus
+// Метод [GetOrdersStatus] предназначен для проверки статуса заказа в системе AvtoTO
+//
+// # Структура ответа метода GetOrdersStatus
+//
+// [GetOrdersStatus]: https://www.avtoto.ru/services/search/docs/technical_soap.html#GetOrdersStatus
 type GetOrdersStatusResponse struct {
 	OrdersInfo []struct { // Массив с информацией о статусах заказов
 		RemoteID int      `json:"RemoteID"` // ID заказа в Вашей системе
@@ -43,6 +52,21 @@ type GetOrdersStatusResponse struct {
 }
 
 // Получить данные по методу GetOrdersStatus
+//
+//	orderStatusGets := make([]avtoto.GetOrdersStatusRequest, 1)
+//	orderStatusGet, errorbasketChecks := AddToBasketRes.BasketResInOrdersStatusReq(0)
+//	if errorbasketChecks != nil {
+//		fmt.Println(errorbasketChecks)
+//	}
+//	orderStatusGets[0] = orderStatusGet
+//	GetOrdersStatusRes, errorOrdersStatus := user.GetOrdersStatus(orderStatusGets)
+//	if errorOrdersStatus != nil {
+//		fmt.Println(errorOrdersStatus)
+//	}
+//	orderStatus, orderStatusError := GetOrdersStatusRes.Status(0)
+//	if orderStatusError != nil {
+//		fmt.Println(orderStatusError)
+//	}
 func (user User) GetOrdersStatus(GetOrdersStatusReq []GetOrdersStatusRequest) (GetOrdersStatusResponse, error) {
 	GetOrdersStatusData := GetOrdersStatusRequestData{User: user, Parts: GetOrdersStatusReq}
 
@@ -56,7 +80,7 @@ func (user User) GetOrdersStatus(GetOrdersStatusReq []GetOrdersStatusRequest) (G
 	}
 
 	// Отправить данные
-	body, responseError := HttpPost(bytesRepresentation, "GetOrdersStatus")
+	body, responseError := httpPost(bytesRepresentation, "GetOrdersStatus")
 	if responseError != nil {
 		return GetOrdersStatusResponse{}, responseError
 	}
@@ -88,25 +112,29 @@ func (GetOrdersStatusRes GetOrdersStatusResponse) Error() string {
 // Получить статус заказа
 func (GetOrdersStatusRes GetOrdersStatusResponse) Status(partCount int) (string, error) {
 	if len(GetOrdersStatusRes.OrdersInfo) >= partCount {
-		switch GetOrdersStatusRes.OrdersInfo[partCount].Info.Progress {
-		case 1:
-			return "Ожидает обработки", nil
-		case 2:
-			return "Ожидает оплаты", nil
-		case 3:
-			return "Заказано", nil
-		case 4:
-			return "Закуплено", nil
-		case 5:
-			return "В пути", nil
-		case 6:
-			return "На складе", nil
-		case 7:
-			return "Выдано", nil
-		case 8:
-			return "Нет в наличии", nil
-		default:
-			return "null", errors.New("enother status GetOrdersStatusRes.OrdersInfo[partCount]")
+		if partCount != 0 {
+			switch GetOrdersStatusRes.OrdersInfo[partCount].Info.Progress {
+			case 1:
+				return "Ожидает обработки", nil
+			case 2:
+				return "Ожидает оплаты", nil
+			case 3:
+				return "Заказано", nil
+			case 4:
+				return "Закуплено", nil
+			case 5:
+				return "В пути", nil
+			case 6:
+				return "На складе", nil
+			case 7:
+				return "Выдано", nil
+			case 8:
+				return "Нет в наличии", nil
+			default:
+				return "null", errors.New("enother status GetOrdersStatusRes.OrdersInfo[partCount]")
+			}
+		} else {
+			return "null", errors.New("partCount = 0")
 		}
 	} else {
 		return "null", errors.New("enother len(GetOrdersStatusRes.OrdersInfo[partCount])")

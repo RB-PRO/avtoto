@@ -5,16 +5,21 @@ import (
 	"strconv"
 )
 
-// Метод UpdateCountInBasket предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа.
-
-// Вся структура запроса метода UpdateCountInBasket
+// Метод [UpdateCountInBasket] предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа
+// Полная структура запроса метода UpdateCountInBasket скрыта от разработчика.
+//
+// [UpdateCountInBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#UpdateCountInBasket
 type updateCountInBasketRequestData struct {
 	User  User                         `json:"user"`  // Данные пользователя для авторизации (тип: ассоциативный массив)
 	Parts []UpdateCountInBasketRequest `json:"parts"` // Список запчастей для обновления количества в корзине (тип: индексированный массив):
 	// Примечание: Необходимо, чтобы количество для покупки Count не превышало максимальное количество MaxCount и соответствовало кратности заказа BaseCount
 }
 
-// Тело запроса UpdateCountInBasket
+// Метод [UpdateCountInBasket] предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа
+//
+// # Структура запроса метода UpdateCountInBasket
+//
+// [UpdateCountInBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#UpdateCountInBasket
 type UpdateCountInBasketRequest struct {
 	InnerID  int  `json:"InnerID"`  // ID записи в корзине AvtoTO (тип: целое) — данные, сохраненные в результате добавления в корзину
 	RemoteID int  `json:"RemoteID"` // ID запчасти в Вашей системе (тип: целое)
@@ -22,7 +27,11 @@ type UpdateCountInBasketRequest struct {
 	// Необходимо, чтобы количество для покупки Count не превышало максимальное количество MaxCount и соответствовало кратности заказа BaseCount
 }
 
-// Тело ответа AddToBasket
+// Метод [UpdateCountInBasket] предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа
+//
+// # Структура ответа метода UpdateCountInBasket
+//
+// [UpdateCountInBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#UpdateCountInBasket
 type UpdateCountInBasketResponse struct {
 	Done []struct { // Массив RemoteID успешно добавленных элементов
 		RemoteID int `json:"RemoteID"`
@@ -40,6 +49,18 @@ type UpdateCountInBasketResponse struct {
 }
 
 // Получить данные по методу UpdateCountInBasket
+//
+//	basketItemsUpdates := make([]avtoto.UpdateCountInBasketRequest, 1)
+//	basketItemsUpdate, errorBasketItemUpdate := AddToBasketRes.BasketResInUpdateReq(0)
+//	if errorBasketItemUpdate != nil {
+//		fmt.Println(errorBasketItemUpdate)
+//	}
+//	basketItemsUpdates[0] = basketItemsUpdate
+//	basketItemsUpdates[0].NewCount = 10
+//	UpdateCountinBasketRes, errorBasketUpdate := user.UpdateCountInBasket(basketItemsUpdates)
+//	if errorBasketUpdate != nil {
+//		fmt.Println(errorBasketUpdate)
+//	}
 func (user User) UpdateCountInBasket(UpdateCountInBasketReq []UpdateCountInBasketRequest) (UpdateCountInBasketResponse, error) {
 	UpdateCountInBasketData := updateCountInBasketRequestData{User: user, Parts: UpdateCountInBasketReq}
 
@@ -53,7 +74,7 @@ func (user User) UpdateCountInBasket(UpdateCountInBasketReq []UpdateCountInBaske
 	}
 
 	// Отправить данные
-	body, responseError := HttpPost(bytesRepresentation, "UpdateCountInBasket")
+	body, responseError := httpPost(bytesRepresentation, "UpdateCountInBasket")
 	if responseError != nil {
 		return UpdateCountInBasketResponse{}, responseError
 	}

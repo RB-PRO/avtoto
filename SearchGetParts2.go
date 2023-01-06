@@ -6,19 +6,25 @@ import (
 	"strconv"
 )
 
-// Метод SearchGetParts2 предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа.
-
-// Структура запроса метода SearchGetParts2
+// Метод [SearchGetParts2] предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа
+// Полная структура запроса метода GetShippingList скрыта от разработчика.
+//
+// [SearchGetParts2]: https://www.avtoto.ru/services/search/docs/technical_soap.html#SearchGetParts2
 type SearchGetParts2Request struct {
 	ProcessSearchId string `json:"ProcessSearchId"` // Уникальный идентификатор процесса поиска (тип: строка).
 	Limit           int    `json:"Limit"`           // необязательный параметр, орграничение на количество строк в выдаче (тип: целое).
 }
 
-// Структура ответа метода SearchGetParts2
+// Метод [SearchGetParts2] предназначен для получения результатов поиска запчастей по коду на сервере AvtoTO. Расширенная версия, выдает статус ответа
+// Список запчастей, найденных по запросу - индексированный массив с упорядоченными целочисленными ключами, начиная с 0.
+// Каждый элемент этого массива содержит информацию о конкретной детали и представляет из себя ассоциативный массив.
+// [*] — эти данные необходимо сохранить в Вашей системе, в дальнейшем они понадобятся для добавления запчастей в корзину
+// [**] — В случае, когда SearchStatus = 4 (Результат получен)
+//
+// # Структура ответа метода SearchGetParts2
+//
+// [SearchGetParts2]: https://www.avtoto.ru/services/search/docs/technical_soap.html#SearchGetParts2
 type SearchGetParts2Response struct {
-	// Список запчастей, найденных по запросу - индексированный массив с упорядоченными целочисленными ключами, начиная с 0.
-	// Каждый элемент этого массива содержит информацию о конкретной детали и представляет из себя ассоциативный массив.
-	// Свойства детали:
 	Parts []struct {
 		Code      string `json:"Code"`      // [*] Код детали
 		Manuf     string `json:"Manuf"`     // [*] Производитель
@@ -36,18 +42,15 @@ type SearchGetParts2Response struct {
 		AvtotoData struct { // Массив со след. элементами:
 			PartId int `json:"PartId"` // [*] Номер запчасти в списке результата поиска
 		} `json:"AvtotoData"`
-		// [*] — эти данные можно узнать зайдя на страницу Настройки после авторизации на сайте
-		// [**] — В случае, когда SearchStatus = 4 (Результат получен)
 	} `json:"Parts"`
-
 	Info struct {
 		Errors       []string          `json:"Errors"`       // Массив ошибок, возникший в процессе поиска
 		SearchStatus int               `json:"SearchStatus"` // Информация о статусе процесса на сервере AvtoTO. Возможные варианты значений:
 		SearchID     CustomIntToString `json:"SearchId"`     // Уникальный идентификатор запроса поиска, возвращается в случае удачного поиска
 	} `json:"Info"`
-	// [*] — эти данные необходимо сохранить в Вашей системе, в дальнейшем они понадобятся для добавления запчастей в корзину
 }
 
+// Получить данные по методу SearchGetParts2
 func (SearchGetParts2Res SearchGetParts2Response) SearchResInBasketReq(partCount int) (AddToBasketRequest, error) {
 	SearchID_int, errorAtoi := SearchGetParts2Res.Info.SearchID.integer()
 	if errorAtoi != nil {
@@ -122,6 +125,16 @@ func (SearchGetParts2Res SearchGetParts2Response) LenParts() int {
 }
 
 // Получить данные по методу SearchGetParts2
+//
+//	SearchGetParts2Res, errorSearch := SearchGetParts2Req.SearchGetParts2() // Вызов метода SearchGetParts2
+//	if errorSearch != nil {
+//		log.Fatal(errorSearch)
+//	}
+//	if SearchGetParts2Res.Error() != "Запрос в обработке" {
+//		fmt.Println(SearchGetParts2Res)
+//	} else {
+//		fmt.Println("Запрос в обработке. Ждём 1 секунду и заново опрашиваешь по методу SearchGetParts2")
+//	}
 func (SearchGetParts2Req SearchGetParts2Request) SearchGetParts2() (SearchGetParts2Response, error) {
 	// Ответ от сервера
 	var SearchGetParts2Res SearchGetParts2Response
@@ -133,7 +146,7 @@ func (SearchGetParts2Req SearchGetParts2Request) SearchGetParts2() (SearchGetPar
 	}
 
 	// Выполнить запрос
-	body, responseError := HttpPost(bytesRepresentation, "SearchGetParts2")
+	body, responseError := httpPost(bytesRepresentation, "SearchGetParts2")
 	if responseError != nil {
 		return SearchGetParts2Response{}, responseError
 	}

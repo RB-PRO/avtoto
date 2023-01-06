@@ -1,3 +1,40 @@
+// avtoto - обёртка на API сервиса [avtoto.ru]
+//
+// Изначально разработчики API предполагали использование SOAP-технологии, но в конечном итоге оставили [дополнение для версии на cURL].
+// Именно это дополнение используется для работы с API в этом проекте.
+//
+// # Установка
+//
+//	go get github.com/rb-pro/avtoto
+//
+// # С чего начать?
+//
+// Для начала работы с API Вам необходимо:
+//   - Заключите договор-поставки. Для этого обратитесь в [клиентский отдел] любым удобным способом. Дальнейшие действия возможны только после подписания договора.
+//   - Активируйте сервис и добавьте IP адрес своего сайта на странице [настройка веб-сервиса].
+//   - Выполните настройки на своём сайте: введите логин / пароль (как при авторизации на сайте) и номер (id) клиента (номер указан в разделе [общая информация]).
+//
+// Вам необходимо знать:
+//   - Номер клиента
+//   - Логин
+//   - Пароль
+//
+// С помощью этих данных Вы можете инициилизировать пользователя:
+//
+//	user := avtoto.User{
+//		UserId:       userIdInt,
+//		UserLogin:    UserLoginStr,
+//		UserPassword: UserPasswordStr}
+//
+// После этого Вам предоставлен функционал всего API. Методы описаны в [данной документации] и [документации поставщиков API].
+//
+// [avtoto.ru]: https://www.avtoto.ru/services/search/docs/technical_soap.html
+// [дополнение для версии на cURL]: https://www.avtoto.ru/services/search/docs/technical_soap.html#curl
+// [клиентский отдел]: https://www.avtoto.ru/contacts.html
+// [настройка веб-сервиса]: https://www.avtoto.ru/#settings:all
+// [общая информация]: https://www.avtoto.ru/#settings:all
+// [данной документации]: https://pkg.go.dev/github.com/rb-pro/avtoto
+// [документации поставщиков API]: https://www.avtoto.ru/services/search/docs/technical_soap.html#curl
 package avtotoGo
 
 import (
@@ -19,7 +56,7 @@ type User struct {
 }
 
 // Запрос с параметром action и данными json в формате []byte
-func HttpPost(bytesRepresentation []byte, action string) ([]byte, error) {
+func httpPost(bytesRepresentation []byte, action string) ([]byte, error) {
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
 	_ = writer.WriteField("action", action)

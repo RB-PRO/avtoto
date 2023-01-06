@@ -1,7 +1,5 @@
 package avtotoGo
 
-// Метод CheckAvailabilityInBasket проверяет запчасти в корзине AvtoTO на наличие в прайсах для дальнейшего заказа, а так же срок хранения в корзине.
-
 import (
 	"encoding/json"
 	"errors"
@@ -9,20 +7,31 @@ import (
 	"strings"
 )
 
-// Вся структура запроса метода CheckAvailabilityInBasket
-type CheckAvailabilityInBasketRequestData struct {
+// Метод [CheckAvailabilityInBasket] проверяет запчасти в корзине AvtoTO на наличие в прайсах для дальнейшего заказа, а так же срок хранения в корзине
+// Полная структура запроса метода CheckAvailabilityInBasket скрыта от разработчика.
+//
+// [CheckAvailabilityInBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#CheckAvailabilityInBasket
+type checkAvailabilityInBasketRequestData struct {
 	User  User                               `json:"user"`  // Данные пользователя для авторизации (тип: ассоциативный массив)
 	Parts []CheckAvailabilityInBasketRequest `json:"parts"` // Список запчастей для удаления из корзины (тип: индексированный массив):
 }
 
-// Тело запроса CheckAvailabilityInBasket
+// Метод [CheckAvailabilityInBasket] проверяет запчасти в корзине AvtoTO на наличие в прайсах для дальнейшего заказа, а так же срок хранения в корзине
+//
+// # Структура запроса метода CheckAvailabilityInBasket
+//
+// [CheckAvailabilityInBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#CheckAvailabilityInBasket
 type CheckAvailabilityInBasketRequest struct {
 	InnerID  int `json:"InnerID"`         // ID записи в корзине AvtoTO (тип: целое)
 	RemoteID int `json:"RemoteID"`        // ID запчасти в Вашей системе (тип: целое)
 	Count    int `json:"Count,omitempty"` // Количество для добавления (необязательный параметр, тип: целое)
 }
 
-// Тело ответа CheckAvailabilityInBasket
+// Метод [CheckAvailabilityInBasket] проверяет запчасти в корзине AvtoTO на наличие в прайсах для дальнейшего заказа, а так же срок хранения в корзине
+//
+// # Структура ответа метода CheckAvailabilityInBasket
+//
+// [CheckAvailabilityInBasket]: https://www.avtoto.ru/services/search/docs/technical_soap.html#CheckAvailabilityInBasket
 type CheckAvailabilityInBasketResponse struct {
 	PartsInfo []struct { // информация о наличии товара в корзине, массив:
 		RemoteID     int    `json:"RemoteID"`     // ID товара в Вашей системе
@@ -43,8 +52,23 @@ type CheckAvailabilityInBasketResponse struct {
 }
 
 // Получить данные по методу CheckAvailabilityInBasket
+//
+//	basketChecks := make([]avtoto.CheckAvailabilityInBasketRequest, 1)
+//	basketCheck, errorbasketChecks := AddToBasketRes.BasketResInCheckReq(0)
+//	if errorbasketChecks != nil {
+//		fmt.Println(errorbasketChecks)
+//	}
+//	basketChecks[0] = basketCheck
+//	CheckAvailabilityInBasketRes, errorCheckInBasket := user.CheckAvailabilityInBasket(basketChecks)
+//	if errorCheckInBasket != nil {
+//		fmt.Println(errorCheckInBasket)
+//	}
+//	availability, errorAvailability := CheckAvailabilityInBasketRes.Availability(0)
+//	if errorAvailability != nil {
+//		fmt.Println(errorAvailability)
+//	}
 func (user User) CheckAvailabilityInBasket(CheckAvailabilityInBasketReq []CheckAvailabilityInBasketRequest) (CheckAvailabilityInBasketResponse, error) {
-	CheckAvailabilityInBasketData := CheckAvailabilityInBasketRequestData{User: user, Parts: CheckAvailabilityInBasketReq}
+	CheckAvailabilityInBasketData := checkAvailabilityInBasketRequestData{User: user, Parts: CheckAvailabilityInBasketReq}
 
 	// Ответ от сервера
 	var CheckAvailabilityInBasketRes CheckAvailabilityInBasketResponse
@@ -56,7 +80,7 @@ func (user User) CheckAvailabilityInBasket(CheckAvailabilityInBasketReq []CheckA
 	}
 
 	// Отправить данные
-	body, responseError := HttpPost(bytesRepresentation, "CheckAvailabilityInBasket")
+	body, responseError := httpPost(bytesRepresentation, "CheckAvailabilityInBasket")
 	if responseError != nil {
 		return CheckAvailabilityInBasketResponse{}, responseError
 	}
