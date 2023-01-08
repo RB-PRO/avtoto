@@ -1,6 +1,6 @@
 # avtoto
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/rb-pro/avtoto.svg)](https://pkg.go.dev/github.com/rb-pro/avtoto) [![avtoto API](https://img.shields.io/badge/avtoto-API-blue.svg)](https://www.avtoto.ru/services/search/docs/technical_soap.html)
+[![Go Reference](https://pkg.go.dev/badge/github.com/rb-pro/avtoto.svg)](https://pkg.go.dev/github.com/RB-PRO/avtoto) [![avtoto API](https://img.shields.io/badge/avtoto-API-blue.svg)](https://www.avtoto.ru/services/search/docs/technical_soap.html)
 
 <img align="right" alt="DiscordGo logo" src="docs/img/avtotoGO_rectangle.png" width="200">
 
